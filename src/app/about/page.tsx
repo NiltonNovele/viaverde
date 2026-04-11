@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import {
-  Accordion,
-  AccordionItem,
-} from "@radix-ui/react-accordion";
-import {
   Activity,
   Users,
-  PhoneCall,
   FileText,
   ChevronDown,
   Smartphone,
@@ -41,7 +36,7 @@ const ViaVerdeAboutPage = () => {
   return (
     <main className="w-full bg-white text-gray-800">
 
-      {/* NAVEGAÇÃO */}
+      {/* NAVIGATION */}
       <nav className="w-full bg-white/90 backdrop-blur border-b border-green-100 shadow-sm py-4">
         <ul className="flex justify-center gap-6 text-sm sm:text-base font-semibold text-green-700">
           {sections.map((section) => (
@@ -54,7 +49,7 @@ const ViaVerdeAboutPage = () => {
         </ul>
       </nav>
 
-      {/* SOBRE */}
+      {/* ABOUT */}
       <section id="about" className="max-w-7xl mx-auto px-6 py-20 text-center space-y-8">
         <motion.div
           variants={fadeIn}
@@ -70,17 +65,13 @@ const ViaVerdeAboutPage = () => {
 
           <p className="text-gray-700 max-w-3xl mx-auto text-lg">
             A ViaVerde é uma plataforma digital de coordenação de saúde criada
-            para reduzir tempos de espera, melhorar a resposta em emergências e
-            ligar pacientes aos cuidados de forma mais rápida e eficiente.  
-            Desde hospitais lotados a chamadas urgentes — simplificamos o acesso
-            à saúde quando mais importa.
+            para reduzir tempos de espera e melhorar a resposta em emergências.
           </p>
 
-          {/* IMAGEM 1: Sala de espera cheia */}
           <div className="relative w-full h-[420px] rounded-xl overflow-hidden shadow-lg mt-8">
             <Image
               src="/pac.jpg"
-              alt="Doentes numa sala de espera hospitalar cheia"
+              alt="Sala de espera hospitalar"
               fill
               style={{ objectFit: "cover" }}
             />
@@ -88,15 +79,15 @@ const ViaVerdeAboutPage = () => {
         </motion.div>
       </section>
 
-      {/* MISSÃO */}
+      {/* MISSION */}
       <section id="mission" className="bg-green-50 py-20 px-6">
         <motion.div
-  className="max-w-5xl mx-auto text-center space-y-6"
-  variants={fadeIn}
-  initial="hidden"
-  animate="visible"
-  as="div"
->
+          className="max-w-5xl mx-auto text-center space-y-6"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5 }}
+        >
           <ShieldPlus className="w-12 h-12 text-green-600 mx-auto" />
 
           <h2 className="text-4xl font-bold text-green-700">
@@ -104,20 +95,19 @@ const ViaVerdeAboutPage = () => {
           </h2>
 
           <p className="text-gray-700 text-lg">
-            Acreditamos que nenhum paciente deve sofrer devido a atrasos,
-            sobrelotação ou falta de coordenação. A ViaVerde foi criada para
-            priorizar urgências, orientar pacientes e ligar profissionais de
-            saúde em tempo real.
+            Nenhum paciente deve sofrer devido a atrasos ou sobrelotação.
+            A ViaVerde prioriza urgências e liga pacientes a cuidados reais.
           </p>
         </motion.div>
       </section>
 
-      {/* COMO FUNCIONA */}
+      {/* HOW IT WORKS */}
       <section id="how" className="max-w-7xl mx-auto px-6 py-20">
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate="visible"
+          transition={{ duration: 0.5 }}
         >
           <h2 className="text-4xl font-bold text-green-700 text-center mb-12">
             Como Funciona
@@ -125,31 +115,25 @@ const ViaVerdeAboutPage = () => {
 
           <div className="grid md:grid-cols-2 gap-12">
 
-            {/* PACIENTES */}
             <div>
               <h3 className="flex items-center gap-2 text-2xl text-green-600 font-semibold">
                 <Smartphone /> Pacientes
               </h3>
-
               <ul className="list-disc ml-6 mt-4 space-y-2 text-gray-700">
-                <li>Reportar sintomas ou emergências de imediato</li>
-                <li>Receber triagem automática por nível de urgência</li>
-                <li>Encontrar o centro de saúde mais próximo disponível</li>
-                <li>Receber atualizações por SMS ou WhatsApp</li>
+                <li>Reportar sintomas</li>
+                <li>Triagem automática</li>
+                <li>Encaminhamento rápido</li>
               </ul>
             </div>
 
-            {/* PROFISSIONAIS DE SAÚDE */}
             <div>
               <h3 className="flex items-center gap-2 text-2xl text-green-600 font-semibold">
-                <Users /> Profissionais de Saúde
+                <Users /> Profissionais
               </h3>
-
               <ul className="list-disc ml-6 mt-4 space-y-2 text-gray-700">
-                <li>Gestão em tempo real do fluxo de pacientes</li>
-                <li>Prioridade automática de casos urgentes</li>
-                <li>Controlo de camas e recursos hospitalares</li>
-                <li>Comunicação direta com pacientes</li>
+                <li>Gestão de pacientes</li>
+                <li>Prioridade automática</li>
+                <li>Coordenação em tempo real</li>
               </ul>
             </div>
 
@@ -157,32 +141,29 @@ const ViaVerdeAboutPage = () => {
         </motion.div>
       </section>
 
-      {/* SISTEMA DE EMERGÊNCIA */}
+      {/* EMERGENCY */}
       <section id="emergency" className="bg-green-50 py-20 px-6">
         <motion.div
           className="max-w-6xl mx-auto text-center space-y-8"
           variants={fadeIn}
           initial="hidden"
           animate="visible"
+          transition={{ duration: 0.5 }}
         >
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto" />
 
           <h2 className="text-4xl font-bold text-green-700">
-            Sistema de Resposta de Emergência
+            Sistema de Emergência
           </h2>
 
           <p className="text-gray-700 max-w-3xl mx-auto">
-            A ViaVerde integra triagem inteligente assistida por tecnologia.
-            Quando um paciente faz uma chamada ou submete uma emergência,
-            o sistema avalia instantaneamente a gravidade e encaminha para a
-            unidade de saúde mais próxima e disponível.
+            Triagem inteligente e encaminhamento automático para hospitais.
           </p>
 
-          {/* IMAGEM 2: Chamada de emergência */}
           <div className="relative w-full h-[380px] rounded-xl overflow-hidden shadow-lg mt-8">
             <Image
               src="/iwww.jpg"
-              alt="Operador de linha de emergência a atender chamada"
+              alt="Emergência"
               fill
               style={{ objectFit: "cover" }}
             />
@@ -190,68 +171,62 @@ const ViaVerdeAboutPage = () => {
         </motion.div>
       </section>
 
-      {/* DOCUMENTAÇÃO */}
+      {/* DOCUMENTS */}
       <section id="docs" className="max-w-4xl mx-auto px-6 py-20">
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate="visible"
+          transition={{ duration: 0.5 }}
           className="space-y-10"
         >
           <FileText className="text-green-600 w-10 h-10 mx-auto" />
 
           <h2 className="text-4xl font-bold text-green-700 text-center">
-            Documentação Legal
+            Documentação
           </h2>
 
-          <Accordion type="single" collapsible className="space-y-4">
+          <div className="space-y-4">
+
             {[
               {
                 title: "Política de Privacidade",
-                desc: "Como os dados dos pacientes são recolhidos, armazenados e protegidos.",
-                file: "/docs/privacy-policy.pdf",
+                desc: "Como os dados são protegidos.",
               },
               {
                 title: "Termos de Serviço",
-                desc: "Regras de utilização da plataforma ViaVerde e do sistema de emergência.",
-                file: "/docs/terms-of-service.pdf",
+                desc: "Regras de utilização.",
               },
               {
                 title: "Declaração Médica",
-                desc: "Limitações da triagem digital e encaminhamento de emergências.",
-                file: "/docs/medical-disclaimer.pdf",
+                desc: "Limitações do sistema.",
               },
-            ].map(({ title, desc, file }, i) => (
-              <AccordionItem key={i} value={title}>
+            ].map((item) => (
+              <div key={item.title} className="border rounded-lg overflow-hidden">
                 <button
-                  onClick={() => toggleAccordion(title)}
-                  className="w-full flex justify-between items-center py-4 px-5 bg-green-100 rounded-lg shadow"
+                  onClick={() => toggleAccordion(item.title)}
+                  className="w-full flex justify-between items-center p-4 bg-green-100"
                 >
-                  <span className="font-semibold text-green-800">{title}</span>
+                  <span className="font-semibold">{item.title}</span>
                   <ChevronDown
                     className={`transition-transform ${
-                      openItem === title ? "rotate-180" : ""
+                      openItem === item.title ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
-                {openItem === title && (
-                  <div className="bg-white px-5 py-4 border border-green-200 rounded-b-xl shadow-sm">
-                    <p className="text-sm text-gray-700 mb-2">{desc}</p>
-                    <a
-                      href={file}
-                      target="_blank"
-                      className="text-green-600 underline text-sm font-medium"
-                    >
-                      Descarregar PDF
-                    </a>
+                {openItem === item.title && (
+                  <div className="p-4 bg-white">
+                    <p className="text-sm text-gray-700">{item.desc}</p>
                   </div>
                 )}
-              </AccordionItem>
+              </div>
             ))}
-          </Accordion>
+
+          </div>
         </motion.div>
       </section>
+
     </main>
   );
 };
