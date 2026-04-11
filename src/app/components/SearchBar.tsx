@@ -11,6 +11,9 @@ const ViaVerdeForm = () => {
   const [form, setForm] = useState<any>({});
   const [result, setResult] = useState<any>(null);
   const [loadingText, setLoadingText] = useState("");
+  const [isChronic, setIsChronic] = useState(false);
+  const [hospitalNumber, setHospitalNumber] = useState("");
+  const [profile, setProfile] = useState<any>(null);
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }));
@@ -25,7 +28,6 @@ const ViaVerdeForm = () => {
     "A validar protocolos clínicos...",
   ];
 
-  // TRIAGE EFFECT
   useEffect(() => {
     if (step === "triage") {
       let i = 0;
@@ -112,12 +114,46 @@ const ViaVerdeForm = () => {
     setStep("result");
   };
 
+  const handleChronicLookup = () => {
+    // MOCK PROFILE DATABASE
+    const mockProfiles: any = {
+      "MPT-0384-18382": {
+        name: "Nilton Novele",
+        disease: "Diabetes Tipo 2",
+        phone: "+258 84 000 0000",
+      },
+      "MPT-1000-99999": {
+        name: "Maria João",
+        disease: "Hipertensão",
+        phone: "+258 82 111 2222",
+      },
+    };
+
+    const found = mockProfiles[hospitalNumber];
+
+    if (found) {
+      setProfile({ id: hospitalNumber, ...found });
+    } else {
+      alert("Número hospitalar não encontrado.");
+    }
+  };
+
   const submitOccurrence = () => {
     setStep("triage");
   };
 
   return (
     <section className="bg-gradient-to-br from-green-50 via-white to-blue-50 p-8 rounded-3xl shadow-xl border max-w-3xl mx-auto">
+
+      {/* PROFILE (CHRONIC PATIENT HEADER) */}
+      {profile && (
+        <div className="bg-white p-4 rounded-xl shadow border mb-6">
+          <h3 className="font-bold text-green-700">Paciente Crónico</h3>
+          <p><strong>Nome:</strong> {profile.name}</p>
+          <p><strong>Nº Único:</strong> {profile.id}</p>
+          <p><strong>Doença:</strong> {profile.disease}</p>
+        </div>
+      )}
 
       {/* STEP 1 */}
       {step === "who" && (
@@ -130,6 +166,7 @@ const ViaVerdeForm = () => {
             <button onClick={() => { setIsSelf(true); setStep("identity"); }} className="choice-btn">
               <User /> Para mim
             </button>
+
             <button onClick={() => { setIsSelf(false); setStep("identity"); }} className="choice-btn">
               <Users /> Outra pessoa
             </button>
@@ -142,9 +179,51 @@ const ViaVerdeForm = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Dados do paciente</h2>
 
-          <input placeholder="Nome" className="input" onChange={(e) => handleChange("name", e.target.value)} />
-          <input placeholder="Apelido" className="input" onChange={(e) => handleChange("surname", e.target.value)} />
-          <input placeholder="Telefone" className="input" onChange={(e) => handleChange("phone", e.target.value)} />
+          {/* CHRONIC OPTION */}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isChronic}
+              onChange={(e) => setIsChronic(e.target.checked)}
+            />
+            Paciente crónico
+          </label>
+
+          {isChronic && (
+            <div className="space-y-2">
+              <input
+                placeholder="Número Único Hospitalar (ex: MPT-XXXX)"
+                className="input"
+                value={hospitalNumber}
+                onChange={(e) => setHospitalNumber(e.target.value)}
+              />
+
+              <button
+                onClick={handleChronicLookup}
+                className="btn-primary w-full"
+              >
+                Validar Paciente
+              </button>
+            </div>
+          )}
+
+          <input
+            placeholder="Nome"
+            className="input"
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+
+          <input
+            placeholder="Apelido"
+            className="input"
+            onChange={(e) => handleChange("surname", e.target.value)}
+          />
+
+          <input
+            placeholder="Telefone"
+            className="input"
+            onChange={(e) => handleChange("phone", e.target.value)}
+          />
 
           <button onClick={() => setStep("details")} className="btn-primary w-full">
             Continuar

@@ -45,9 +45,9 @@ export const Header = () => {
           <NavItem
             href="/history"
             icon={<History size={16} />}
-            label="History"
+            label="Historico"
           />
-          <NavItem href="/contact" icon={<Mail size={16} />} label="Contacto" />
+          {/* <NavItem href="/contact" icon={<Mail size={16} />} label="Contacto" /> */}
 
           <NavItem
             href="/dashboard"
@@ -92,13 +92,13 @@ export const Header = () => {
             onClick={toggleMenu}
             block
           />
-          <NavItem
+          {/* <NavItem
             href="/contact"
             icon={<Mail size={18} />}
             label="Contacto"
             onClick={toggleMenu}
             block
-          />
+          /> */}
 
           <NavItem
             href="/dashboard"
