@@ -91,11 +91,12 @@ const ViaVerdeAboutPage = () => {
       {/* MISSÃO */}
       <section id="mission" className="bg-green-50 py-20 px-6">
         <motion.div
-          className="max-w-5xl mx-auto text-center space-y-6"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-        >
+  className="max-w-5xl mx-auto text-center space-y-6"
+  variants={fadeIn}
+  initial="hidden"
+  animate="visible"
+  as="div"
+>
           <ShieldPlus className="w-12 h-12 text-green-600 mx-auto" />
 
           <h2 className="text-4xl font-bold text-green-700">
