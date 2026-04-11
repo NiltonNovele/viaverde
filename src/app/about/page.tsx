@@ -1,28 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import {
-  Rocket,
+  Accordion,
+  AccordionItem,
+} from "@radix-ui/react-accordion";
+import {
+  Activity,
   Users,
-  MessageCircle,
+  PhoneCall,
   FileText,
   ChevronDown,
   Smartphone,
-  Lightbulb,
+  ShieldPlus,
+  AlertTriangle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
 const sections = [
-  { id: "about", label: "About" },
-  { id: "team", label: "Team" },
-  { id: "how", label: "How It Works" },
-  { id: "ai", label: "BookAI" },
-  { id: "docs", label: "Docs" },
+  { id: "about", label: "Sobre" },
+  { id: "mission", label: "Missão" },
+  { id: "how", label: "Como Funciona" },
+  { id: "emergency", label: "Sistema de Emergência" },
+  { id: "docs", label: "Documentação" },
 ];
 
-const AboutPage = () => {
+const ViaVerdeAboutPage = () => {
   const [openItem, setOpenItem] = useState<string | null>(null);
 
   const fadeIn = {
@@ -35,10 +39,11 @@ const AboutPage = () => {
   };
 
   return (
-    <main className="w-full bg-white text-[#333]">
-      {/* Sticky Navigation */}
-      <nav className="relative w-full bg-white/90 backdrop-blur border-b border-orange-100 shadow-sm py-4">
-        <ul className="flex justify-center gap-6 text-sm sm:text-base font-semibold text-orange-600">
+    <main className="w-full bg-white text-gray-800">
+
+      {/* NAVEGAÇÃO */}
+      <nav className="w-full bg-white/90 backdrop-blur border-b border-green-100 shadow-sm py-4">
+        <ul className="flex justify-center gap-6 text-sm sm:text-base font-semibold text-green-700">
           {sections.map((section) => (
             <li key={section.id}>
               <a href={`#${section.id}`} className="hover:underline">
@@ -49,312 +54,195 @@ const AboutPage = () => {
         </ul>
       </nav>
 
-      <section
-        id="about"
-        className="max-w-7xl mx-auto px-6 py-20 text-center space-y-8"
-      >
+      {/* SOBRE */}
+      <section id="about" className="max-w-7xl mx-auto px-6 py-20 text-center space-y-8">
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate="visible"
           transition={{ duration: 0.5 }}
         >
-          <Rocket className="w-12 h-12 text-orange-500 mx-auto" />
-          <h1 className="text-5xl font-bold text-orange-600">
-            BookIt: Booking Made Simple
+          <Activity className="w-12 h-12 text-green-600 mx-auto" />
+
+          <h1 className="text-5xl font-bold text-green-700">
+            ViaVerde: Acesso Mais Rápido aos Cuidados de Saúde
           </h1>
+
           <p className="text-gray-700 max-w-3xl mx-auto text-lg">
-            Born in Cape Town, BookIt was crafted by young African students who
-            believe booking a service should be as easy as sending a message.
-            Whether you are in Kaapstad or Joburg — we bridge the gap between
-            you and what you need.
+            A ViaVerde é uma plataforma digital de coordenação de saúde criada
+            para reduzir tempos de espera, melhorar a resposta em emergências e
+            ligar pacientes aos cuidados de forma mais rápida e eficiente.  
+            Desde hospitais lotados a chamadas urgentes — simplificamos o acesso
+            à saúde quando mais importa.
           </p>
-          <div className="w-full h-90 rounded-xl bg-orange-100 shadow-inner flex items-center justify-center mt-6 relative">
+
+          {/* IMAGEM 1: Sala de espera cheia */}
+          <div className="relative w-full h-[420px] rounded-xl overflow-hidden shadow-lg mt-8">
             <Image
-              src="/banner.jpg"
-              alt="Hero Banner"
-              layout="fill"
-              objectFit="cover"
-              className="rounded-xl"
+              src="/pac.jpg"
+              alt="Doentes numa sala de espera hospitalar cheia"
+              fill
+              style={{ objectFit: "cover" }}
             />
           </div>
         </motion.div>
       </section>
 
-      <section
-        id="team"
-        className="max-w-7xl mx-auto px-6 py-20 space-y-12 text-center"
-      >
+      {/* MISSÃO */}
+      <section id="mission" className="bg-green-50 py-20 px-6">
         <motion.div
+          className="max-w-5xl mx-auto text-center space-y-6"
           variants={fadeIn}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.2 }}
         >
-          <Users className="w-12 h-12 text-orange-500 mx-auto" />
-          <h2 className="text-4xl font-bold text-orange-600">
-            Meet the Founders
+          <ShieldPlus className="w-12 h-12 text-green-600 mx-auto" />
+
+          <h2 className="text-4xl font-bold text-green-700">
+            A Nossa Missão
           </h2>
 
-          {/* About Us description */}
-          <p className="text-gray-700 max-w-2xl mx-auto mt-4">
-            We are a passionate team committed to revolutionizing service
-            delivery across Africa. By blending technology and design, our app
-            empowers providers to connect, manage, and grow their businesses
-            efficiently.
+          <p className="text-gray-700 text-lg">
+            Acreditamos que nenhum paciente deve sofrer devido a atrasos,
+            sobrelotação ou falta de coordenação. A ViaVerde foi criada para
+            priorizar urgências, orientar pacientes e ligar profissionais de
+            saúde em tempo real.
           </p>
-
-          <div className="flex flex-col gap-16 pt-12 max-w-4xl mx-auto">
-            {/* Founder 1 */}
-            <div className="flex items-center gap-6 text-left">
-              {/* Image */}
-              <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg flex-shrink-0">
-                <Image
-                  src="/nilton.jpeg"
-                  alt="Nilton Novele"
-                  width={128}
-                  height={128}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-
-              {/* Text + quote + LinkedIn */}
-              <div>
-                <h4 className="text-lg font-bold">Nilton Novele</h4>
-                <p className="text-sm text-gray-600 mb-2">CTO</p>
-                <p className="text-gray-700 mb-4 max-w-md">
-                  Nilton is a seasoned tech visionary with a passion for
-                  building scalable solutions that empower businesses. He leads
-                  the technical development to ensure the app is robust and
-                  user-friendly.
-                </p>
-                <blockquote className="bg-orange-50 border-l-4 border-orange-400 p-4 italic text-orange-700 shadow-sm rounded mb-4 max-w-md">
-                  “Our vision is to create seamless tech that empowers service
-                  providers to focus on what matters most — delivering
-                  exceptional value to their clients.”
-                </blockquote>
-                <a
-                  href="https://www.linkedin.com/in/nilton-novele-82211821b/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-                  aria-label="Nilton Novele LinkedIn"
-                >
-                  LinkedIn
-                </a>
-              </div>
-            </div>
-
-            {/* Founder 2 */}
-            <div className="flex items-center gap-6 text-left">
-              {/* Image */}
-              <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg flex-shrink-0">
-                <Image
-                  src="/jumpex.jpg"
-                  alt="Henzel Tibana"
-                  width={128}
-                  height={128}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-
-              {/* Text + quote + LinkedIn */}
-              <div>
-                <h4 className="text-lg font-bold">Henzel Tibana</h4>
-                <p className="text-sm text-gray-600 mb-2">COO</p>
-                <p className="text-gray-700 mb-4 max-w-md">
-                  Henzel brings a strategic mindset and operational expertise,
-                  focusing on sustainable growth and delivering value to service
-                  providers across Africa.
-                </p>
-                <blockquote className="bg-orange-50 border-l-4 border-orange-400 p-4 italic text-orange-700 shadow-sm rounded mb-4 max-w-md">
-                  “We built this app with a mission to simplify operations for
-                  African service providers, helping them grow sustainably in a
-                  competitive market.”
-                </blockquote>
-                <a
-                  href="https://www.linkedin.com/in/henzel-tibana-a07068211/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-                  aria-label="Henzel Tibana LinkedIn"
-                >
-                  LinkedIn
-                </a>
-              </div>
-            </div>
-          </div>
         </motion.div>
       </section>
 
-      <section id="how" className="bg-orange-50 py-20 px-6">
+      {/* COMO FUNCIONA */}
+      <section id="how" className="max-w-7xl mx-auto px-6 py-20">
         <motion.div
-          className="max-w-7xl mx-auto space-y-16"
           variants={fadeIn}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.3 }}
         >
-          <h2 className="text-4xl font-bold text-orange-600 text-center">
-            How It Works
+          <h2 className="text-4xl font-bold text-green-700 text-center mb-12">
+            Como Funciona
           </h2>
+
           <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-2xl text-orange-500 font-semibold">
-                <Smartphone /> Clients
+
+            {/* PACIENTES */}
+            <div>
+              <h3 className="flex items-center gap-2 text-2xl text-green-600 font-semibold">
+                <Smartphone /> Pacientes
               </h3>
-              <ul className="list-disc ml-6 text-gray-700 space-y-2">
-                <li>Search services via web or WhatsApp</li>
-                <li>Filter by location, category, or availability</li>
-                <li>No login, no hassle — just book!</li>
-                <li>Confirmation via SMS & Email</li>
+
+              <ul className="list-disc ml-6 mt-4 space-y-2 text-gray-700">
+                <li>Reportar sintomas ou emergências de imediato</li>
+                <li>Receber triagem automática por nível de urgência</li>
+                <li>Encontrar o centro de saúde mais próximo disponível</li>
+                <li>Receber atualizações por SMS ou WhatsApp</li>
               </ul>
             </div>
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-2xl text-orange-500 font-semibold">
-                <Lightbulb /> Providers
+
+            {/* PROFISSIONAIS DE SAÚDE */}
+            <div>
+              <h3 className="flex items-center gap-2 text-2xl text-green-600 font-semibold">
+                <Users /> Profissionais de Saúde
               </h3>
-              <ul className="list-disc ml-6 text-gray-700 space-y-2">
-                <li>Build a profile with your services & pricing</li>
-                <li>Get bookings in real-time</li>
-                <li>Use our dashboard to manage traffic</li>
-                <li>Connect with clients via WhatsApp</li>
+
+              <ul className="list-disc ml-6 mt-4 space-y-2 text-gray-700">
+                <li>Gestão em tempo real do fluxo de pacientes</li>
+                <li>Prioridade automática de casos urgentes</li>
+                <li>Controlo de camas e recursos hospitalares</li>
+                <li>Comunicação direta com pacientes</li>
               </ul>
             </div>
+
           </div>
         </motion.div>
       </section>
 
-      <section
-        id="ai"
-        className="max-w-7xl mx-auto px-6 py-20 text-center space-y-8"
-      >
+      {/* SISTEMA DE EMERGÊNCIA */}
+      <section id="emergency" className="bg-green-50 py-20 px-6">
         <motion.div
+          className="max-w-6xl mx-auto text-center space-y-8"
           variants={fadeIn}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.4 }}
         >
-          <MessageCircle className="text-orange-500 w-10 h-10 mx-auto" />
-          <h2 className="text-4xl font-bold text-orange-600">
-            BookAI + WhatsApp
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto" />
+
+          <h2 className="text-4xl font-bold text-green-700">
+            Sistema de Resposta de Emergência
           </h2>
-          <p className="max-w-2xl mx-auto text-gray-700">
-            No more forms. Just type “Book a haircut at 2pm” and BookAI handles
-            it all. Seamlessly connects to WhatsApp so service providers can
-            reply fast.
+
+          <p className="text-gray-700 max-w-3xl mx-auto">
+            A ViaVerde integra triagem inteligente assistida por tecnologia.
+            Quando um paciente faz uma chamada ou submete uma emergência,
+            o sistema avalia instantaneamente a gravidade e encaminha para a
+            unidade de saúde mais próxima e disponível.
           </p>
 
-          {/* Fancy 4-picture arrangement */}
-          <div className="relative max-w-4xl mx-auto mt-10 h-64 sm:h-80 grid grid-cols-3 grid-rows-2 gap-4 select-none overflow-hidden">
-            {/* Image 1: spans 2 rows */}
-            <div className="col-span-2 row-span-2 relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/sc1.jpg"
-                alt="Screenshot 1"
-                fill
-                style={{ objectFit: "cover" }}
-                draggable={false}
-                sizes="(max-width: 768px) 100vw, 600px"
-                priority
-              />
-            </div>
-
-            {/* Image 2 */}
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/sc2.png"
-                alt="Screenshot 2"
-                fill
-                style={{ objectFit: "cover" }}
-                draggable={false}
-                sizes="(max-width: 768px) 100vw, 300px"
-                priority
-              />
-            </div>
-
-            {/* Image 3 */}
-            <div className="relative rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/sc.jpg"
-                alt="Screenshot 3"
-                fill
-                style={{ objectFit: "cover" }}
-                draggable={false}
-                sizes="(max-width: 768px) 100vw, 300px"
-                priority
-              />
-            </div>
-
-            {/* Image 4: positioned overlapping bottom right */}
-            <div
-              className="absolute bottom-0 right-0 w-40 h-40 rounded-xl overflow-hidden shadow-2xl border-4 border-white"
-              style={{ transform: "translate(25%, 25%)" }}
-            >
-              <Image
-                src="/ai.jpg"
-                alt="Screenshot 4"
-                fill
-                style={{ objectFit: "cover" }}
-                draggable={false}
-                priority
-              />
-            </div>
+          {/* IMAGEM 2: Chamada de emergência */}
+          <div className="relative w-full h-[380px] rounded-xl overflow-hidden shadow-lg mt-8">
+            <Image
+              src="/iwww.jpg"
+              alt="Operador de linha de emergência a atender chamada"
+              fill
+              style={{ objectFit: "cover" }}
+            />
           </div>
         </motion.div>
       </section>
 
-      <section id="docs" className="bg-orange-50 py-20 px-6">
+      {/* DOCUMENTAÇÃO */}
+      <section id="docs" className="max-w-4xl mx-auto px-6 py-20">
         <motion.div
-          className="max-w-4xl mx-auto space-y-10"
           variants={fadeIn}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.5 }}
+          className="space-y-10"
         >
-          <FileText className="text-orange-500 w-10 h-10 mx-auto" />
-          <h2 className="text-4xl font-bold text-orange-600 text-center">
-            Legal & Documentation
+          <FileText className="text-green-600 w-10 h-10 mx-auto" />
+
+          <h2 className="text-4xl font-bold text-green-700 text-center">
+            Documentação Legal
           </h2>
+
           <Accordion type="single" collapsible className="space-y-4">
             {[
               {
-                title: "Terms & Conditions",
-                desc: "All terms, legal responsibilities, and platform liabilities.",
-                file: "/docs/terms-and-conditions.pdf",
-              },
-              {
-                title: "Privacy Policy",
-                desc: "How we manage and protect your data, including AI and WhatsApp use.",
+                title: "Política de Privacidade",
+                desc: "Como os dados dos pacientes são recolhidos, armazenados e protegidos.",
                 file: "/docs/privacy-policy.pdf",
               },
               {
-                title: "Terms of Use",
-                desc: "Guidelines for using BookIt as a client or service provider.",
-                file: "/docs/terms-of-use.pdf",
+                title: "Termos de Serviço",
+                desc: "Regras de utilização da plataforma ViaVerde e do sistema de emergência.",
+                file: "/docs/terms-of-service.pdf",
+              },
+              {
+                title: "Declaração Médica",
+                desc: "Limitações da triagem digital e encaminhamento de emergências.",
+                file: "/docs/medical-disclaimer.pdf",
               },
             ].map(({ title, desc, file }, i) => (
               <AccordionItem key={i} value={title}>
                 <button
                   onClick={() => toggleAccordion(title)}
-                  className="w-full text-left flex justify-between items-center py-4 px-5 bg-orange-100 rounded-lg shadow"
+                  className="w-full flex justify-between items-center py-4 px-5 bg-green-100 rounded-lg shadow"
                 >
-                  <span className="font-semibold text-orange-800">{title}</span>
+                  <span className="font-semibold text-green-800">{title}</span>
                   <ChevronDown
                     className={`transition-transform ${
                       openItem === title ? "rotate-180" : ""
                     }`}
                   />
                 </button>
+
                 {openItem === title && (
-                  <div className="bg-white px-5 py-4 border border-orange-200 rounded-b-xl shadow-sm">
+                  <div className="bg-white px-5 py-4 border border-green-200 rounded-b-xl shadow-sm">
                     <p className="text-sm text-gray-700 mb-2">{desc}</p>
                     <a
                       href={file}
                       target="_blank"
-                      className="text-orange-600 underline text-sm font-medium"
+                      className="text-green-600 underline text-sm font-medium"
                     >
-                      Download PDF
+                      Descarregar PDF
                     </a>
                   </div>
                 )}
@@ -367,4 +255,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage;
+export default ViaVerdeAboutPage;

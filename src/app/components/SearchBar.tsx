@@ -1,235 +1,254 @@
 "use client";
 
-import React, { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, User, Users, MapPin, Loader2 } from "lucide-react";
 
-type Step =
-  | "auth"
-  | "actions"
-  | "appointment"
-  | "sos"
-  | "medication"
-  | "report"
-  | "chronic"
-  | "result";
+type Step = "who" | "identity" | "details" | "triage" | "result";
 
-const SearchBar = () => {
-  const [step, setStep] = useState<Step>("auth");
-  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
-  const [user, setUser] = useState<any>({});
+const ViaVerdeForm = () => {
+  const [step, setStep] = useState<Step>("who");
+  const [isSelf, setIsSelf] = useState<boolean | null>(null);
   const [form, setForm] = useState<any>({});
   const [result, setResult] = useState<any>(null);
+  const [loadingText, setLoadingText] = useState("");
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }));
   };
 
-  const generateAppointment = () => {
-    let priority = "Baixa";
-    if (form.symptoms?.includes("dor intensa")) priority = "Alta";
-    else if (form.symptoms?.includes("febre")) priority = "Média";
+  const loadingMessages = [
+    "A analisar sintomas...",
+    "A avaliar nível de urgência...",
+    "A procurar unidade sanitária mais próxima...",
+    "A verificar disponibilidade hospitalar...",
+    "A preparar pré-notificação...",
+    "A validar protocolos clínicos...",
+  ];
+
+  // TRIAGE EFFECT
+  useEffect(() => {
+    if (step === "triage") {
+      let i = 0;
+
+      const interval = setInterval(() => {
+        setLoadingText(loadingMessages[i % loadingMessages.length]);
+        i++;
+      }, 1000);
+
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+        generateResult();
+      }, 6000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [step]);
+
+  const getPriority = () => {
+    if (
+      form.consciousness === "inconsciente" ||
+      form.breathing === "dificuldade" ||
+      form.bleeding === "grave"
+    )
+      return "Alta";
+
+    if (
+      form.symptoms?.toLowerCase().includes("dor intensa") ||
+      form.symptoms?.toLowerCase().includes("febre alta")
+    )
+      return "Média";
+
+    return "Baixa";
+  };
+
+  const getInstructions = (priority: string) => {
+    if (priority === "Alta") {
+      return [
+        "Dirija-se imediatamente ao hospital mais próximo.",
+        "Se possível, chame uma ambulância.",
+        "Mantenha o paciente estável e consciente.",
+        "Evite movimentos desnecessários.",
+      ];
+    }
+
+    if (priority === "Média") {
+      return [
+        "Dirija-se a uma unidade sanitária nas próximas horas.",
+        "Mantenha o paciente hidratado.",
+        "Evite automedicação sem orientação.",
+      ];
+    }
+
+    return [
+      "Monitorar os sintomas.",
+      "Caso piorem, procurar uma unidade sanitária.",
+    ];
+  };
+
+  const getHospital = () => {
+    const hospitals = [
+      "Hospital Central de Maputo",
+      "Hospital Geral de Mavalane",
+      "Hospital José Macamo",
+    ];
+    return hospitals[Math.floor(Math.random() * hospitals.length)];
+  };
+
+  const generateResult = () => {
+    const priority = getPriority();
+    const instructions = getInstructions(priority);
+    const hospital = getHospital();
 
     setResult({
-      type: "appointment",
       priority,
-      hospital: "Hospital Geral de Maputo",
-      doctor: "Clínico Geral",
-      queue: Math.floor(Math.random() * 50) + 1,
-      time: "30-60 min",
+      instructions,
+      hospital,
+      reference: "VV-" + Math.floor(Math.random() * 100000),
     });
 
     setStep("result");
   };
 
-  const generateSOS = () => {
-    setResult({
-      type: "sos",
-      hospitals: [
-        "Hospital Central de Maputo",
-        "Hospital Geral de Mavalane",
-        "Clínica Sommerschield",
-      ],
-    });
-    setStep("result");
-  };
-
-  const generateMedication = () => {
-    setResult({
-      type: "medication",
-      meds: [
-        { name: "Paracetamol", dosage: "500mg 3x/dia" },
-        { name: "Ibuprofeno", dosage: "400mg 2x/dia" },
-      ],
-      pharmacy: "Farmácia Central de Maputo",
-    });
-    setStep("result");
-  };
-
-  const generateReport = () => {
-    setResult({
-      type: "report",
-      message: "Ticket submetido com sucesso.",
-    });
-    setStep("result");
+  const submitOccurrence = () => {
+    setStep("triage");
   };
 
   return (
-    <section className="bg-gradient-to-br from-blue-50 via-white to-green-50 p-8 rounded-3xl shadow-lg border border-blue-100 max-w-3xl mx-auto">
+    <section className="bg-gradient-to-br from-green-50 via-white to-blue-50 p-8 rounded-3xl shadow-xl border max-w-3xl mx-auto">
 
-      {/* AUTH */}
-      {step === "auth" && (
+      {/* STEP 1 */}
+      {step === "who" && (
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Está registado no SaúdeFila+?
-          </h2>
-
-          <div className="flex gap-4 mb-6">
-            <button onClick={() => setIsRegistered(true)} className="btn-secondary">
-              Sim
-            </button>
-            <button onClick={() => setIsRegistered(false)} className="btn-secondary">
-              Não
-            </button>
-          </div>
-
-          {isRegistered !== null && (
-            <div className="space-y-4">
-              <input placeholder="Nome (ex: João)" onChange={(e) => handleChange("name", e.target.value)} className="input" />
-              <input placeholder="Apelido (ex: Mabunda)" onChange={(e) => handleChange("surname", e.target.value)} className="input" />
-
-              {isRegistered ? (
-                <input placeholder="Número do Paciente (ex: MPT-2026-0001)" onChange={(e) => handleChange("id", e.target.value)} className="input" />
-              ) : (
-                <>
-                  <input placeholder="Data de Nascimento (DD/MM/AAAA)" className="input" />
-                  <input placeholder="Endereço (ex: Maputo, Sommerschield)" className="input" />
-                  <input placeholder="Contacto (ex: +258 84 000 0000)" className="input" />
-                </>
-              )}
-
-              <button onClick={() => setStep("actions")} className="btn-primary w-full">
-                Continuar
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ACTIONS */}
-      {step === "actions" && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            O que pretende fazer?
+          <h2 className="text-2xl font-bold mb-6">
+            A ocorrência é para si ou outra pessoa?
           </h2>
 
           <div className="grid grid-cols-2 gap-4">
-            <button onClick={() => setStep("appointment")} className="atm-btn">Marcar Consulta</button>
-            <button onClick={() => setStep("chronic")} className="atm-btn">Doença Crónica</button>
-            <button onClick={() => setStep("medication")} className="atm-btn">Medicamento</button>
-            <button onClick={() => setStep("report")} className="atm-btn">Reportar</button>
-
-            <button
-              onClick={() => setStep("sos")}
-              className="atm-btn col-span-2 bg-red-500 text-red hover:bg-red-600 flex items-center justify-center gap-2"
-            >
-              <AlertTriangle size={18} />
-              SOS Emergência
+            <button onClick={() => { setIsSelf(true); setStep("identity"); }} className="choice-btn">
+              <User /> Para mim
+            </button>
+            <button onClick={() => { setIsSelf(false); setStep("identity"); }} className="choice-btn">
+              <Users /> Outra pessoa
             </button>
           </div>
         </div>
       )}
 
-      {/* APPOINTMENT */}
-      {step === "appointment" && (
+      {/* STEP 2 */}
+      {step === "identity" && (
         <div className="space-y-4">
-          <textarea placeholder="Descreva os seus sintomas (ex: febre, dor de cabeça...)" onChange={(e) => handleChange("symptoms", e.target.value)} className="input" />
-          <input placeholder="Há quanto tempo sente estes sintomas? (ex: 3 dias)" className="input" />
-          <textarea placeholder="Observações adicionais (opcional)" className="input" />
-          <input type="date" className="input" />
+          <h2 className="text-xl font-semibold">Dados do paciente</h2>
 
-          <button onClick={generateAppointment} className="btn-primary w-full">
-            Confirmar Marcação
+          <input placeholder="Nome" className="input" onChange={(e) => handleChange("name", e.target.value)} />
+          <input placeholder="Apelido" className="input" onChange={(e) => handleChange("surname", e.target.value)} />
+          <input placeholder="Telefone" className="input" onChange={(e) => handleChange("phone", e.target.value)} />
+
+          <button onClick={() => setStep("details")} className="btn-primary w-full">
+            Continuar
           </button>
         </div>
       )}
 
-      {/* SOS */}
-      {step === "sos" && (
+      {/* STEP 3 */}
+      {step === "details" && (
         <div className="space-y-4">
-          <textarea placeholder="Descreva a emergência (ex: acidente, dor intensa...)" className="input border-red-300" />
-          <input placeholder="Localização actual (ex: Av. Julius Nyerere)" className="input border-red-300" />
-          <label className="flex gap-2 items-center text-sm text-gray-600">
-            <input type="checkbox" className="accent-red-500" />
-            Preciso de ambulância imediatamente
-          </label>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <AlertTriangle className="text-red-500" /> Detalhes da Emergência
+          </h2>
 
-          <button onClick={generateSOS} className="btn-danger w-full">
-            Enviar SOS
+          <select className="input" onChange={(e) => handleChange("type", e.target.value)}>
+            <option>Tipo de emergência</option>
+            <option>Acidente</option>
+            <option>Dor súbita</option>
+            <option>Problema respiratório</option>
+            <option>Febre</option>
+            <option>Outro</option>
+          </select>
+
+          <select className="input" onChange={(e) => handleChange("consciousness", e.target.value)}>
+            <option>Estado de consciência</option>
+            <option value="normal">Consciente</option>
+            <option value="confuso">Confuso</option>
+            <option value="inconsciente">Inconsciente</option>
+          </select>
+
+          <select className="input" onChange={(e) => handleChange("breathing", e.target.value)}>
+            <option>Respiração</option>
+            <option value="normal">Normal</option>
+            <option value="dificuldade">Dificuldade</option>
+          </select>
+
+          <select className="input" onChange={(e) => handleChange("bleeding", e.target.value)}>
+            <option>Hemorragia</option>
+            <option value="nenhuma">Nenhuma</option>
+            <option value="leve">Leve</option>
+            <option value="grave">Grave</option>
+          </select>
+
+          <textarea placeholder="Sintomas" className="input" onChange={(e) => handleChange("symptoms", e.target.value)} />
+          <textarea placeholder="Descrição da ocorrência" className="input" onChange={(e) => handleChange("description", e.target.value)} />
+          <textarea placeholder="Observações adicionais" className="input" onChange={(e) => handleChange("notes", e.target.value)} />
+
+          <button onClick={submitOccurrence} className="btn-danger w-full">
+            Submeter Emergência
           </button>
         </div>
       )}
 
-      {/* MEDICATION */}
-      {step === "medication" && (
-        <div className="space-y-4">
-          <input type="file" className="input" />
-          <button onClick={generateMedication} className="btn-primary w-full">
-            Analisar Receita
-          </button>
-        </div>
-      )}
+      {/* TRIAGE */}
+      {step === "triage" && (
+        <div className="flex flex-col items-center justify-center text-center py-16 space-y-6">
+          <Loader2 className="animate-spin text-green-600" size={40} />
 
-      {/* REPORT */}
-      {step === "report" && (
-        <div className="space-y-4">
-          <textarea placeholder="Descreva o problema ou dúvida..." className="input" />
-          <button onClick={generateReport} className="btn-primary w-full">
-            Submeter
-          </button>
+          <h3 className="text-xl font-semibold text-gray-800">
+            A Via Verde está a analisar a situação
+          </h3>
+
+          <p className="text-gray-600 text-sm animate-pulse">
+            {loadingText}
+          </p>
+
+          <div className="text-xs text-gray-400">
+            Sistema inteligente + validação clínica
+          </div>
         </div>
       )}
 
       {/* RESULT */}
       {step === "result" && result && (
-        <div className="bg-white p-6 rounded-2xl shadow-md border">
-          {result.type === "appointment" && (
-            <>
-              <h3 className="text-green-600 font-bold text-lg mb-4">Consulta Confirmada</h3>
-              <div className="space-y-1 text-sm text-gray-700">
-                <p><strong>Prioridade:</strong> {result.priority}</p>
-                <p><strong>Hospital:</strong> {result.hospital}</p>
-                <p><strong>Médico:</strong> {result.doctor}</p>
-                <p><strong>Fila:</strong> #{result.queue}</p>
-                <p><strong>Tempo estimado:</strong> {result.time}</p>
-              </div>
-            </>
-          )}
+        <div className="bg-white p-6 rounded-2xl shadow text-center space-y-4">
 
-          {result.type === "sos" && (
-            <>
-              <h3 className="text-red-600 font-bold text-lg mb-4">SOS Enviado</h3>
-              <ul className="list-disc pl-5 text-sm">
-                {result.hospitals.map((h: string) => (
-                  <li key={h}>{h}</li>
-                ))}
-              </ul>
-            </>
-          )}
+          <h3 className="text-xl font-bold text-green-600">
+            Atendimento Ativado
+          </h3>
 
-          {result.type === "medication" && (
-            <>
-              <h3 className="text-blue-600 font-bold text-lg mb-4">Medicamentos</h3>
-              {result.meds.map((m: any) => (
-                <p key={m.name}>{m.name} — {m.dosage}</p>
+          <p><strong>Prioridade:</strong> {result.priority}</p>
+          <p><strong>Referência:</strong> {result.reference}</p>
+
+          <div className="text-left">
+            <h4 className="font-semibold mt-4 mb-2">Instruções Imediatas:</h4>
+            <ul className="list-disc pl-5 text-sm">
+              {result.instructions.map((i: string) => (
+                <li key={i}>{i}</li>
               ))}
-              <p className="mt-2">Disponível em: {result.pharmacy}</p>
-            </>
-          )}
+            </ul>
+          </div>
 
-          {result.type === "report" && <p>{result.message}</p>}
+          <div className="bg-green-50 p-4 rounded-xl mt-4">
+            <p className="flex items-center gap-2">
+              <MapPin size={16} />
+              <strong>Unidade Recomendada:</strong> {result.hospital}
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              A unidade já foi notificada e está preparada para o seu atendimento.
+            </p>
+          </div>
 
-          <button onClick={() => setStep("actions")} className="btn mt-6 w-full">
-            Voltar
+          <button onClick={() => setStep("who")} className="btn w-full">
+            Nova Ocorrência
           </button>
         </div>
       )}
@@ -238,71 +257,44 @@ const SearchBar = () => {
       <style jsx>{`
         .input {
           width: 100%;
-          padding: 12px;
-          border-radius: 10px;
-          border: 1px solid #cbd5e1;
-          font-size: 14px;
-          transition: 0.2s;
-        }
-        .input:focus {
-          outline: none;
-          border-color: #2563eb;
-          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+          padding: 14px;
+          border-radius: 12px;
+          border: 1px solid #d1d5db;
         }
 
         .btn {
           padding: 12px;
-          background: #e2e8f0;
-          border-radius: 10px;
-          font-weight: 500;
-          transition: 0.2s;
-        }
-        .btn:hover {
-          background: #cbd5e1;
+          background: #e5e7eb;
+          border-radius: 12px;
         }
 
         .btn-primary {
-          padding: 12px;
-          background: linear-gradient(to right, #2563eb, #22c55e);
+          padding: 14px;
+          background: linear-gradient(to right, #16a34a, #2563eb);
           color: white;
-          border-radius: 10px;
-          font-weight: 600;
-          transition: 0.2s;
-        }
-        .btn-primary:hover {
-          opacity: 0.9;
+          border-radius: 12px;
         }
 
         .btn-danger {
-          padding: 12px;
-          background: #ef4444;
+          padding: 14px;
+          background: linear-gradient(to right, #ef4444, #dc2626);
           color: white;
-          border-radius: 10px;
-          font-weight: 600;
+          border-radius: 12px;
         }
 
-        .btn-secondary {
-          padding: 10px 16px;
+        .choice-btn {
+          padding: 20px;
           background: white;
-          border: 1px solid #cbd5e1;
-          border-radius: 10px;
-        }
-
-        .atm-btn {
-          padding: 18px;
-          background: white;
-          border-radius: 14px;
-          box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-          font-weight: 500;
-          transition: 0.25s;
-        }
-        .atm-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+          border-radius: 16px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
         }
       `}</style>
     </section>
   );
 };
 
-export default SearchBar;
+export default ViaVerdeForm;

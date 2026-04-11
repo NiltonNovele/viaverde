@@ -1,80 +1,95 @@
 "use client";
 
-import { useState } from "react";
-import { FaWhatsapp, FaPhoneAlt, FaCommentDots } from "react-icons/fa";
-import { BsChatDotsFill } from "react-icons/bs";
-import { IoLogoWhatsapp } from "react-icons/io";
+import {
+  Smartphone,
+  Hospital,
+  Hash,
+  MessageSquareText,
+} from "lucide-react";
 
-const WhatsAppBanner = () => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-
-  const handleSend = () => {
-    if (!phone.trim() || !name.trim()) return;
-    const formatted = phone.replace(/\D/g, "");
-    const message = encodeURIComponent(
-      `Hi BookAI! I'm ${name}, and I'd like to make a booking.`
-    );
-    window.open(`https://wa.me/${formatted}?text=${message}`, "_blank");
-  };
-
+const USSDBanner = () => {
   return (
-    <section className="relative bg-green-600 text-white rounded-2xl px-4 py-10 my-12 max-w-3xl mx-auto shadow-md overflow-hidden">
-      {/* Decorative floating icons */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-6 left-8 text-white/10 blur-sm text-3xl">
-          <FaWhatsapp />
+    <section className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-12 my-12 max-w-5xl mx-auto shadow-sm">
+
+      <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="flex justify-center mb-3">
+          <div className="bg-green-100 text-green-600 p-3 rounded-full">
+            <Smartphone size={26} />
+          </div>
         </div>
-        <div className="absolute top-1/4 right-10 text-white/10 blur-sm text-2xl">
-          <FaPhoneAlt />
-        </div>
-        <div className="absolute bottom-8 left-12 text-white/10 blur-sm text-4xl rotate-12">
-          <BsChatDotsFill />
-        </div>
-        <div className="absolute bottom-1/4 right-1/4 text-white/10 blur-sm text-3xl -rotate-12">
-          <FaCommentDots />
-        </div>
-        <div className="absolute top-1/2 left-1/2 text-white/10 blur-sm text-3xl -translate-x-1/2 -translate-y-1/2">
-          <IoLogoWhatsapp />
-        </div>
+
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+          Marcação de Consultas via USSD
+        </h2>
+
+        <p className="text-gray-600 mt-3 text-base">
+          Para consultas gerais, utilize o código <strong>*808#</strong>. 
+          Um processo simples, rápido e acessível, sem necessidade de internet.
+        </p>
       </div>
 
-      <div className="relative z-10 text-center space-y-6">
-        <div>
-          <FaWhatsapp size={40} className="mx-auto mb-1" />
-          <h2 className="text-2xl font-bold">Book via WhatsApp with BookAI</h2>
-          <p className="text-base text-white/90">
-            Simply enter your name and phone number — we’ll open WhatsApp with a
-            message ready to send. It’s fast, easy, and personalized.
+      {/* Steps */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+
+        <div className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+          <div className="flex items-center gap-3 mb-3">
+            <Smartphone className="text-blue-600" size={20} />
+            <h3 className="font-semibold text-gray-800">
+              1. Aceda ao USSD
+            </h3>
+          </div>
+          <p className="text-sm text-gray-600">
+            Marque <strong>*808#</strong> no seu telemóvel e escolha a opção de marcação de consulta.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-3">
-          <input
-            type="text"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full sm:w-1/3 px-4 py-2.5 rounded-xl border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white"
-          />
-          <input
-            type="tel"
-            placeholder="e.g. +27761915804"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full sm:w-1/3 px-4 py-2.5 rounded-xl border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white"
-          />
-          <button
-            onClick={handleSend}
-            className="flex items-center gap-2 bg-white text-green-700 font-semibold px-5 py-2.5 rounded-xl hover:bg-green-50 transition"
-          >
-            <FaWhatsapp size={18} />
-            Start Chat
-          </button>
+        <div className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+          <div className="flex items-center gap-3 mb-3">
+            <Hospital className="text-green-600" size={20} />
+            <h3 className="font-semibold text-gray-800">
+              2. Escolha a unidade
+            </h3>
+          </div>
+          <p className="text-sm text-gray-600">
+            Selecione o hospital ou unidade sanitária mais próxima ou conveniente.
+          </p>
         </div>
+
+        <div className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+          <div className="flex items-center gap-3 mb-3">
+            <Hash className="text-purple-600" size={20} />
+            <h3 className="font-semibold text-gray-800">
+              3. Receba o seu número
+            </h3>
+          </div>
+          <p className="text-sm text-gray-600">
+            Será atribuído um número de fila (slip) para o seu atendimento.
+          </p>
+        </div>
+
       </div>
+
+      {/* SMS Info */}
+      <div className="bg-white border rounded-xl p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm">
+        <div className="bg-blue-100 text-blue-600 p-3 rounded-full">
+          <MessageSquareText size={22} />
+        </div>
+
+        <p className="text-gray-700 text-sm md:text-base">
+          O seu número de fila será atualizado automaticamente via SMS, 
+          permitindo acompanhar o progresso sem necessidade de permanecer na unidade sanitária.
+        </p>
+      </div>
+
+      {/* CTA */}
+      <div className="mt-8 text-center">
+        <span className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full shadow-sm">
+          Discar *808#
+        </span>
+      </div>
+
     </section>
   );
 };
 
-export default WhatsAppBanner;
+export default USSDBanner;

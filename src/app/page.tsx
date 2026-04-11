@@ -8,7 +8,7 @@ export default function Home() {
     <div className="w-full px-4 py-10">
       <Hero />
       <SearchBar />
-      <How />
+      {/* <How /> */}
       <WhatsAppBanner />
     </div>
   );

@@ -9,7 +9,7 @@ import {
   Info,
   Mail,
   LogIn,
-  Activity,
+  History,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -25,17 +25,16 @@ export const Header = () => {
         {/* Logo + Name */}
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 relative">
-            {/* Replace with your logo path */}
             <Image
               src="/logo.png"
-              alt="SaudeFila+"
+              alt="ViaVerde"
               fill
               className="object-contain"
             />
           </div>
           <span className="text-2xl font-bold">
-            <span className="text-blue-600">Saúde</span>
-            <span className="text-green-500">Fila+</span>
+            <span className="text-blue-600">Via</span>
+            <span className="text-green-500">Verde</span>
           </span>
         </Link>
 
@@ -43,7 +42,11 @@ export const Header = () => {
         <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
           <NavItem href="/" icon={<Home size={16} />} label="Início" />
           <NavItem href="/about" icon={<Info size={16} />} label="Sobre" />
-          <NavItem href="/triage" icon={<Activity size={16} />} label="Triagem" />
+          <NavItem
+            href="/history"
+            icon={<History size={16} />}
+            label="History"
+          />
           <NavItem href="/contact" icon={<Mail size={16} />} label="Contacto" />
 
           <NavItem
@@ -68,10 +71,34 @@ export const Header = () => {
           transition={{ duration: 0.3 }}
           className="md:hidden px-4 pb-6 space-y-3 bg-white border-t"
         >
-          <NavItem href="/" icon={<Home size={18} />} label="Início" onClick={toggleMenu} block />
-          <NavItem href="/about" icon={<Info size={18} />} label="Sobre" onClick={toggleMenu} block />
-          <NavItem href="/triage" icon={<Activity size={18} />} label="Triagem" onClick={toggleMenu} block />
-          <NavItem href="/contact" icon={<Mail size={18} />} label="Contacto" onClick={toggleMenu} block />
+          <NavItem
+            href="/"
+            icon={<Home size={18} />}
+            label="Início"
+            onClick={toggleMenu}
+            block
+          />
+          <NavItem
+            href="/about"
+            icon={<Info size={18} />}
+            label="Sobre"
+            onClick={toggleMenu}
+            block
+          />
+          <NavItem
+            href="/history"
+            icon={<History size={18} />}
+            label="History"
+            onClick={toggleMenu}
+            block
+          />
+          <NavItem
+            href="/contact"
+            icon={<Mail size={18} />}
+            label="Contacto"
+            onClick={toggleMenu}
+            block
+          />
 
           <NavItem
             href="/dashboard"
@@ -109,7 +136,7 @@ const NavItem = ({
     onClick={onClick}
     className={`${
       block ? "flex" : "inline-flex"
-    } items-center gap-2 text-gray-700 hover:text-blue-600 transition ${className}`}
+    } items-center gap-2 text-gray-700 hover:text-green-600 transition ${className}`}
   >
     {icon}
     <span>{label}</span>
