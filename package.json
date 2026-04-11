@@ -26,7 +26,7 @@
     "mailtrap": "^4.1.0",
     "mongoose": "^8.15.0",
     "next": "^16.2.1-canary.32",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^8.0.5",
     "radix-ui": "^1.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
