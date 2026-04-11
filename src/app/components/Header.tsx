@@ -1,17 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState, MouseEventHandler, ReactNode } from "react";
+import { useState, ReactNode, MouseEventHandler } from "react";
 import {
   Menu,
   X,
   Home,
   Info,
-  Mail,
   LogIn,
   History,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 
 export const Header = () => {
@@ -21,16 +19,11 @@ export const Header = () => {
   return (
     <header className="bg-white border-b shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        
-        {/* Logo + Name */}
+
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 relative">
-            <Image
-              src="/logo.png"
-              alt="ViaVerde"
-              fill
-              className="object-contain"
-            />
+            <Image src="/logo.png" alt="ViaVerde" fill className="object-contain" />
           </div>
           <span className="text-2xl font-bold">
             <span className="text-blue-600">Via</span>
@@ -42,12 +35,7 @@ export const Header = () => {
         <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
           <NavItem href="/" icon={<Home size={16} />} label="Início" />
           <NavItem href="/about" icon={<Info size={16} />} label="Sobre" />
-          <NavItem
-            href="/history"
-            icon={<History size={16} />}
-            label="Historico"
-          />
-          {/* <NavItem href="/contact" icon={<Mail size={16} />} label="Contacto" /> */}
+          <NavItem href="/history" icon={<History size={16} />} label="Histórico" />
 
           <NavItem
             href="/dashboard"
@@ -63,42 +51,12 @@ export const Header = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU (NO FRAMER MOTION) */}
       {isOpen && (
-        <motion.nav
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden px-4 pb-6 space-y-3 bg-white border-t"
-        >
-          <NavItem
-            href="/"
-            icon={<Home size={18} />}
-            label="Início"
-            onClick={toggleMenu}
-            block
-          />
-          <NavItem
-            href="/about"
-            icon={<Info size={18} />}
-            label="Sobre"
-            onClick={toggleMenu}
-            block
-          />
-          <NavItem
-            href="/history"
-            icon={<History size={18} />}
-            label="History"
-            onClick={toggleMenu}
-            block
-          />
-          {/* <NavItem
-            href="/contact"
-            icon={<Mail size={18} />}
-            label="Contacto"
-            onClick={toggleMenu}
-            block
-          /> */}
+        <nav className="md:hidden px-4 pb-6 space-y-3 bg-white border-t animate-fadeIn">
+          <NavItem href="/" icon={<Home size={18} />} label="Início" onClick={toggleMenu} block />
+          <NavItem href="/about" icon={<Info size={18} />} label="Sobre" onClick={toggleMenu} block />
+          <NavItem href="/history" icon={<History size={18} />} label="Histórico" onClick={toggleMenu} block />
 
           <NavItem
             href="/dashboard"
@@ -108,8 +66,26 @@ export const Header = () => {
             block
             className="bg-gradient-to-r from-blue-600 to-green-500 text-white px-4 py-2 rounded-md"
           />
-        </motion.nav>
+        </nav>
       )}
+
+      {/* simple animation */}
+      <style jsx>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </header>
   );
 };
