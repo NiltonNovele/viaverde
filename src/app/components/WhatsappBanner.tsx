@@ -6,6 +6,7 @@ import {
   Hash,
   MessageSquareText,
 } from "lucide-react";
+import Link from "next/link";
 
 const USSDBanner = () => {
   return (
@@ -83,10 +84,12 @@ const USSDBanner = () => {
 
       {/* CTA */}
       <div className="mt-8 text-center">
-        <span className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full shadow-sm">
-          Discar *808#
-        </span>
-      </div>
+  <Link href="/ussd">
+    <span className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full shadow-sm hover:bg-green-700 transition cursor-pointer">
+      Discar *808#
+    </span>
+  </Link>
+</div>
 
     </section>
   );
