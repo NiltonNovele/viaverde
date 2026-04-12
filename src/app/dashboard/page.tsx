@@ -41,6 +41,23 @@ const hospitals = [
   "Hospital Provincial da Matola",
 ];
 
+const emptyForm: Case = {
+  id: "",
+  name: "",
+  surname: "",
+  phone: "",
+  type: "",
+  consciousness: "",
+  breathing: "",
+  bleeding: "",
+  symptoms: "",
+  description: "",
+  notes: "",
+  priority: "Média",
+  hospital: hospitals[0],
+  status: "Pendente",
+};
+
 const MOCK_EMAIL = "nilton.novele@misau.gov.mz";
 const MOCK_PASS = "2026";
 
@@ -260,6 +277,7 @@ const initialCases: Case[] = [
   },
 ];
 
+/* ---------------- HELPERS (unchanged) ---------------- */
 const getPriorityColor = (priority: Priority) => {
   switch (priority) {
     case "Alta":
@@ -293,8 +311,29 @@ export default function DashboardPage() {
 
   const [cases, setCases] = useState<Case[]>(initialCases);
   const [selectedHospital, setSelectedHospital] = useState(hospitals[0]);
-  const [filterByPriority, setFilterByPriority] = useState<Priority | "Todos">("Todos");
+  const [filterByPriority, setFilterByPriority] =
+    useState<Priority | "Todos">("Todos");
   const [lock, setLock] = useState(true);
+
+  // ✅ NEW STATE
+  const [form, setForm] = useState<Case>(emptyForm);
+
+  // ✅ NEW FUNCTION
+  const handleRegisterCall = () => {
+    if (!form.name || !form.phone) {
+      alert("Preencha pelo menos nome e telefone.");
+      return;
+    }
+
+    const newCase: Case = {
+      ...form,
+      id: "VV-" + Math.floor(Math.random() * 90000),
+      status: "Pendente",
+    };
+
+    setCases((prev) => [newCase, ...prev]);
+    setForm(emptyForm);
+  };
 
   const handleLogin = () => {
     if (email === MOCK_EMAIL && password === MOCK_PASS) {
@@ -308,9 +347,10 @@ export default function DashboardPage() {
     ? cases.filter((c) => c.hospital === selectedHospital)
     : cases;
 
-  const filteredCases = filterByPriority === "Todos" 
-    ? visibleCases 
-    : visibleCases.filter((c) => c.priority === filterByPriority);
+  const filteredCases =
+    filterByPriority === "Todos"
+      ? visibleCases
+      : visibleCases.filter((c) => c.priority === filterByPriority);
 
   const updateStatus = (id: string, status: Status) => {
     setCases((prev) =>
@@ -544,8 +584,97 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
+          
+         
+
         </div>
+
+        <br></br>
+<br></br>
+<br></br>
+<br></br>
+
+
+
+         {/* ================= NEW SECTION ================= */}
+        <div className="bg-white p-6 rounded-lg shadow mb-8 border-l-4 border-green-600">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Plus size={18} /> Registo de Chamadas
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <input placeholder="Nome" className="border p-2 rounded"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input placeholder="Apelido" className="border p-2 rounded"
+              value={form.surname}
+              onChange={(e) => setForm({ ...form, surname: e.target.value })}
+            />
+            <input placeholder="Telefone" className="border p-2 rounded"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+
+            <input placeholder="Tipo" className="border p-2 rounded"
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+            />
+            <input placeholder="Consciência" className="border p-2 rounded"
+              value={form.consciousness}
+              onChange={(e) => setForm({ ...form, consciousness: e.target.value })}
+            />
+            <input placeholder="Respiração" className="border p-2 rounded"
+              value={form.breathing}
+              onChange={(e) => setForm({ ...form, breathing: e.target.value })}
+            />
+
+            <input placeholder="Hemorragia" className="border p-2 rounded"
+              value={form.bleeding}
+              onChange={(e) => setForm({ ...form, bleeding: e.target.value })}
+            />
+            <input placeholder="Sintomas" className="border p-2 rounded"
+              value={form.symptoms}
+              onChange={(e) => setForm({ ...form, symptoms: e.target.value })}
+            />
+            <input placeholder="Descrição" className="border p-2 rounded"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+
+            <input placeholder="Notas" className="border p-2 rounded"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            />
+
+            <select className="border p-2 rounded"
+              value={form.priority}
+              onChange={(e) => setForm({ ...form, priority: e.target.value as Priority })}
+            >
+              <option>Alta</option>
+              <option>Média</option>
+              <option>Baixa</option>
+            </select>
+
+            <select className="border p-2 rounded"
+              value={form.hospital}
+              onChange={(e) => setForm({ ...form, hospital: e.target.value })}
+            >
+              {hospitals.map((h) => (
+                <option key={h}>{h}</option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handleRegisterCall}
+            className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          >
+            Registar Ocorrência
+          </button>
+        </div> 
       </Container>
+      
     </div>
   );
 }
