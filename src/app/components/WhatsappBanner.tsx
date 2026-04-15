@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import {
   Smartphone,
   Hospital,
   Hash,
   MessageSquareText,
 } from "lucide-react";
-import Link from "next/link";
+import USSDSimulator from "./USSDSimulator";
 
 const USSDBanner = () => {
+  const [isUSSDOpen, setIsUSSDOpen] = useState(false);
+
   return (
     <section className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-12 my-12 max-w-5xl mx-auto shadow-sm">
 
@@ -83,14 +86,22 @@ const USSDBanner = () => {
       </div>
 
       {/* CTA */}
-      <div className="mt-8 text-center">
-  <Link href="/ussd">
-    <span className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-full shadow-sm hover:bg-green-700 transition cursor-pointer">
-      Discar *808#
-    </span>
-  </Link>
-</div>
+      <div className="mt-8 text-center flex flex-col sm:flex-row gap-4 justify-center">
+        <button
+          onClick={() => setIsUSSDOpen(true)}
+          className="inline-block bg-green-600 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 cursor-pointer"
+        >
+          Simular USSD
+        </button>
+        <a
+          href="tel:*808#"
+          className="inline-block bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200"
+        >
+          Discar *808#
+        </a>
+      </div>
 
+      <USSDSimulator isOpen={isUSSDOpen} onClose={() => setIsUSSDOpen(false)} />
     </section>
   );
 };

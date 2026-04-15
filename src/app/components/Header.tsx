@@ -35,6 +35,7 @@ export const Header = () => {
         <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
           <NavItem href="/" icon={<Home size={16} />} label="Início" />
           <NavItem href="/about" icon={<Info size={16} />} label="Sobre" />
+          {/* <NavItem href="/about" icon={<Info size={16} />} label="Sobre" /> */}
           <NavItem href="/history" icon={<History size={16} />} label="Histórico" />
 
           <NavItem
