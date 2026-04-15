@@ -3,25 +3,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
-  AlertCircle,
   ArrowRight,
   Building2,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
   Clock3,
   Hospital,
   MapPin,
   Navigation,
+  Phone,
   Search,
   Sparkles,
   Stethoscope,
   UserRound,
   Users,
+  X,
+  MessageSquareText,
+  ReceiptText,
 } from "lucide-react";
 
 type HospitalType = "public" | "private";
 type CapacityStatus = "Vazio" | "Moderado" | "Cheio";
 type RecommendationPriority = "Alta" | "Média" | "Baixa";
+type UrgencyTraffic = "Verde" | "Amarelo" | "Vermelho";
 
 type Doctor = {
   id: number;
@@ -53,9 +58,14 @@ type UserPoint = {
   y: number;
 };
 
-const GRID_W = 12;
-const GRID_H = 10;
-const CELL = 44;
+type BookingForm = {
+  fullName: string;
+  phone: string;
+  receiveSms: boolean;
+};
+
+const MAP_W = 900;
+const MAP_H = 620;
 
 const SPECIALTIES = [
   "Médico Geral",
@@ -86,8 +96,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Hospital Central de Maputo",
     type: "public",
     zone: "Centro",
-    x: 7,
-    y: 4,
+    x: 540,
+    y: 240,
     rating: 4.8,
     estimatedWait: 34,
     status: "Moderado",
@@ -142,8 +152,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Hospital Geral de Mavalane",
     type: "public",
     zone: "Mavalane",
-    x: 4,
-    y: 2,
+    x: 310,
+    y: 120,
     rating: 4.4,
     estimatedWait: 22,
     status: "Vazio",
@@ -188,8 +198,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Hospital José Macamo",
     type: "public",
     zone: "Maxaquene",
-    x: 5,
-    y: 5,
+    x: 420,
+    y: 320,
     rating: 4.3,
     estimatedWait: 41,
     status: "Cheio",
@@ -225,8 +235,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Clínica Sommerschield",
     type: "private",
     zone: "Sommerschield",
-    x: 9,
-    y: 3,
+    x: 700,
+    y: 150,
     rating: 4.9,
     estimatedWait: 14,
     status: "Vazio",
@@ -271,8 +281,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Clínica MaputoCare",
     type: "private",
     zone: "Polana",
-    x: 8,
-    y: 6,
+    x: 650,
+    y: 390,
     rating: 4.7,
     estimatedWait: 19,
     status: "Moderado",
@@ -317,8 +327,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Hospital da Matola Sul",
     type: "public",
     zone: "Periferia",
-    x: 2,
-    y: 7,
+    x: 180,
+    y: 500,
     rating: 4.2,
     estimatedWait: 27,
     status: "Moderado",
@@ -363,8 +373,8 @@ const HOSPITALS: HospitalItem[] = [
     name: "Clínica Costa do Sol",
     type: "private",
     zone: "Costa do Sol",
-    x: 10,
-    y: 1,
+    x: 780,
+    y: 70,
     rating: 4.6,
     estimatedWait: 17,
     status: "Vazio",
@@ -426,12 +436,18 @@ const priorityStyles: Record<RecommendationPriority, string> = {
   Baixa: "bg-emerald-100 text-emerald-700",
 };
 
+const urgencyStyles: Record<UrgencyTraffic, string> = {
+  Verde: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  Amarelo: "bg-amber-100 text-amber-700 border-amber-200",
+  Vermelho: "bg-rose-100 text-rose-700 border-rose-200",
+};
+
 function distance(a: UserPoint, b: UserPoint) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
-function formatGridDistance(d: number) {
-  return `${(d * 0.8).toFixed(1)} km`;
+function formatMapDistance(d: number) {
+  return `${(d / 95).toFixed(1)} km`;
 }
 
 function normalize(text: string) {
@@ -453,7 +469,7 @@ function inferSpecialtyFromSymptoms(symptoms: string): {
   ) {
     return {
       specialty: "Cardiologista",
-      reason: "Sintomas compatíveis com avaliação cardiovascular.",
+      reason: "Os sintomas descritos pedem avaliação cardiovascular prioritária.",
       priority: "Alta",
     };
   }
@@ -495,7 +511,7 @@ function inferSpecialtyFromSymptoms(symptoms: string): {
   ) {
     return {
       specialty: "Ortopedista",
-      reason: "Os sintomas indicam possível necessidade ortopédica.",
+      reason: "Os sintomas indicam necessidade de avaliação ortopédica.",
       priority: "Média",
     };
   }
@@ -521,7 +537,7 @@ function inferSpecialtyFromSymptoms(symptoms: string): {
   ) {
     return {
       specialty: "Oncologista",
-      reason: "Os termos descritos sugerem acompanhamento oncológico.",
+      reason: "Os sinais descritos pedem seguimento oncológico.",
       priority: "Alta",
     };
   }
@@ -550,9 +566,15 @@ function inferSpecialtyFromSymptoms(symptoms: string): {
 
   return {
     specialty: "Médico Geral",
-    reason: "Sem padrão claro; começamos com avaliação clínica geral.",
+    reason: "Sem padrão claro; o melhor início é com avaliação clínica geral.",
     priority: "Baixa",
   };
+}
+
+function getUrgencyFromPriority(priority: RecommendationPriority): UrgencyTraffic {
+  if (priority === "Alta") return "Vermelho";
+  if (priority === "Média") return "Amarelo";
+  return "Verde";
 }
 
 function getHospitalStatusDescription(status: CapacityStatus) {
@@ -561,12 +583,28 @@ function getHospitalStatusDescription(status: CapacityStatus) {
   return "Alta lotação";
 }
 
+function getEtaMinutes(dist: number) {
+  return Math.max(7, Math.round(dist / 18));
+}
+
+function formatTodayDate() {
+  return new Date().toLocaleDateString("pt-PT", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function buildReceiptId() {
+  return `VV-${Math.floor(100000 + Math.random() * 900000)}`;
+}
+
 export default function ConsultasPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Médico Geral");
   const [hospitalFilter, setHospitalFilter] = useState<"public" | "all">("public");
   const [searchTerm, setSearchTerm] = useState("");
   const [symptoms, setSymptoms] = useState("");
-  const [userPosition, setUserPosition] = useState<UserPoint>({ x: 6, y: 8 });
+  const [userPosition, setUserPosition] = useState<UserPoint>({ x: 530, y: 490 });
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisStep, setAnalysisStep] = useState("");
@@ -576,6 +614,14 @@ export default function ConsultasPage() {
     priority: RecommendationPriority;
   } | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [receiptId, setReceiptId] = useState("");
+  const [bookingForm, setBookingForm] = useState<BookingForm>({
+    fullName: "",
+    phone: "",
+    receiveSms: true,
+  });
 
   const specialtyOptions = useMemo(() => {
     const q = normalize(searchTerm);
@@ -602,10 +648,10 @@ export default function ConsultasPage() {
         const availableDoctors = matchingDoctors.filter((doctor) => doctor.available);
 
         let score = d;
-        if (availableDoctors.length > 0) score -= 1.2;
-        if (hospital.status === "Vazio") score -= 0.8;
-        if (hospital.status === "Cheio") score += 1.2;
-        score -= hospital.rating * 0.08;
+        if (availableDoctors.length > 0) score -= 65;
+        if (hospital.status === "Vazio") score -= 40;
+        if (hospital.status === "Cheio") score += 55;
+        score -= hospital.rating * 4;
 
         return {
           hospital,
@@ -634,27 +680,40 @@ export default function ConsultasPage() {
   const selectedHospital = selectedHospitalData?.hospital ?? null;
   const selectedDoctors = selectedHospitalData?.matchingDoctors ?? [];
   const selectedAvailableDoctors = selectedHospitalData?.availableDoctors ?? [];
+  const selectedDoctor = selectedAvailableDoctors[0] ?? selectedDoctors[0] ?? null;
   const recommendedDoctor =
     recommendedHospital?.availableDoctors[0] ??
     recommendedHospital?.matchingDoctors[0] ??
     null;
+
+  const effectivePriority: RecommendationPriority =
+    analysisRecommendation?.priority ?? "Baixa";
+
+  const urgencyStatus = getUrgencyFromPriority(effectivePriority);
 
   const loadingMessages = [
     "A analisar sintomas principais...",
     "A cruzar sintomas com especialidades...",
     "A verificar hospitais compatíveis...",
     "A calcular proximidade e lotação...",
-    "A preparar recomendação clínica simulada...",
+    "A preparar a melhor unidade para atendimento...",
   ];
 
   const submitPanel = () => {
     setHasSubmitted(true);
+    setBookingConfirmed(false);
     if (symptoms.trim()) {
-      runSymptomsSimulation();
+      runSymptomsAnalysis();
+    } else {
+      setAnalysisRecommendation({
+        specialty: selectedSpecialty,
+        reason: "Especialidade selecionada manualmente.",
+        priority: "Baixa",
+      });
     }
   };
 
-  const runSymptomsSimulation = () => {
+  const runSymptomsAnalysis = () => {
     const result = inferSpecialtyFromSymptoms(symptoms || selectedSpecialty);
 
     setAnalysisLoading(true);
@@ -662,7 +721,6 @@ export default function ConsultasPage() {
     setAnalysisStep(loadingMessages[0]);
 
     let index = 0;
-
     const interval = setInterval(() => {
       index += 1;
       if (index < loadingMessages.length) {
@@ -679,130 +737,217 @@ export default function ConsultasPage() {
     }, 4200);
   };
 
-  const roadsHorizontal = [1, 3, 5, 7, 8];
-  const roadsVertical = [2, 4, 6, 8, 10];
+  const openBooking = () => {
+    if (!selectedHospital || !selectedDoctor) return;
+    setShowBookingModal(true);
+  };
 
-  const moveUser = (x: number, y: number) => {
-    setUserPosition({ x, y });
+  const confirmBooking = () => {
+    if (!bookingForm.fullName.trim() || !bookingForm.phone.trim()) return;
+    setReceiptId(buildReceiptId());
+    setShowBookingModal(false);
+    setBookingConfirmed(true);
+  };
+
+  const resetEditing = () => {
+    setHasSubmitted(false);
+    setAnalysisLoading(false);
+    setAnalysisStep("");
+    setAnalysisRecommendation(null);
+    setBookingConfirmed(false);
+    setShowBookingModal(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 md:p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)] backdrop-blur">
+        <div className="mb-5 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)] backdrop-blur">
           <p className="mb-1 text-sm font-semibold uppercase tracking-[0.18em] text-green-600">
             ViaVerde Consultas
           </p>
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-            Simulação inteligente de hospitais em Maputo
+            Encontre a melhor unidade para a sua consulta
           </h1>
           <p className="mt-2 max-w-3xl text-sm text-slate-600">
-            Escolha a especialidade ou descreva sintomas para receber uma recomendação
-            simples e rápida.
+            Escolha a especialidade ou descreva os seus sintomas para ver a unidade
+            recomendada, tempo de espera, disponibilidade médica e marcar a consulta.
           </p>
         </div>
 
-        <div className={`grid gap-6 ${hasSubmitted ? "xl:grid-cols-[minmax(0,1fr)_380px]" : ""}`}>
+        <div className={`grid gap-6 ${hasSubmitted ? "xl:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
           {hasSubmitted && (
-            <section className="space-y-6 order-2 xl:order-1">
-              <section className="rounded-[30px] border border-slate-200/80 bg-white p-4 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
-                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900 md:text-xl">
-                      Mapa simulado de Maputo
-                    </h2>
-                    <p className="text-sm text-slate-500">
-                      Toque num bloco para mover o utilizador ou selecione um hospital.
-                    </p>
-                  </div>
+            <section className="order-2 space-y-5 xl:order-1">
+              <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+                <div className="border-b border-slate-100 p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 md:text-xl">
+                        Mapa de Maputo
+                      </h2>
+                      <p className="text-sm text-slate-500">
+                        Toque no mapa para mover a sua localização ou selecione uma unidade.
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                    <Navigation size={16} className="text-green-600" />
-                    Bloco {userPosition.x}, {userPosition.y}
+                    <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                      <Navigation size={16} className="text-green-600" />
+                      Posição atual
+                    </div>
                   </div>
                 </div>
 
                 <div className="overflow-x-auto">
                   <div
-                    className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,#f8fbff_0%,#eef7ff_100%)]"
-                    style={{
-                      width: GRID_W * CELL,
-                      height: GRID_H * CELL,
-                      minWidth: GRID_W * CELL,
-                    }}
+                    className="relative min-w-[760px] bg-[#eef6ef]"
+                    style={{ width: MAP_W, height: MAP_H }}
                   >
-                    <div className="absolute inset-0">
-                      {Array.from({ length: GRID_H }).map((_, y) =>
-                        Array.from({ length: GRID_W }).map((__, x) => {
-                          const isRoad =
-                            roadsHorizontal.includes(y) || roadsVertical.includes(x);
-
-                          return (
-                            <div
-                              key={`${x}-${y}`}
-                              onClick={() => moveUser(x, y)}
-                              className={`absolute cursor-pointer border border-white/70 transition ${
-                                isRoad
-                                  ? "bg-slate-200/80 hover:bg-slate-300/80"
-                                  : "bg-emerald-50/60 hover:bg-emerald-100/80"
-                              }`}
-                              style={{
-                                left: x * CELL,
-                                top: y * CELL,
-                                width: CELL,
-                                height: CELL,
-                              }}
-                            />
-                          );
-                        })
-                      )}
-                    </div>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,197,94,0.08),transparent_18%),radial-gradient(circle_at_85%_12%,rgba(59,130,246,0.08),transparent_20%),radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.06),transparent_20%)]" />
 
                     <svg
-                      className="pointer-events-none absolute inset-0 h-full w-full"
-                      viewBox={`0 0 ${GRID_W * CELL} ${GRID_H * CELL}`}
+                      className="absolute inset-0 h-full w-full"
+                      viewBox={`0 0 ${MAP_W} ${MAP_H}`}
                     >
-                      {roadsHorizontal.map((row) => (
-                        <line
-                          key={`h-${row}`}
-                          x1={0}
-                          y1={row * CELL + CELL / 2}
-                          x2={GRID_W * CELL}
-                          y2={row * CELL + CELL / 2}
-                          stroke="#94a3b8"
-                          strokeWidth="7"
-                          strokeDasharray="10 8"
-                          opacity="0.8"
-                        />
-                      ))}
+                      <path
+                        d="M40 520 C180 470, 280 500, 390 450 S620 360, 860 300"
+                        fill="none"
+                        stroke="#cbd5e1"
+                        strokeWidth="26"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M110 65 C230 120, 330 160, 430 220 S620 330, 790 470"
+                        fill="none"
+                        stroke="#cbd5e1"
+                        strokeWidth="20"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M250 40 C260 170, 280 270, 320 380 S420 520, 470 585"
+                        fill="none"
+                        stroke="#cbd5e1"
+                        strokeWidth="18"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M640 30 C610 140, 570 235, 540 330 S490 510, 470 590"
+                        fill="none"
+                        stroke="#cbd5e1"
+                        strokeWidth="18"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M55 250 C170 240, 305 220, 470 230 S660 250, 845 230"
+                        fill="none"
+                        stroke="#cbd5e1"
+                        strokeWidth="15"
+                        strokeLinecap="round"
+                      />
 
-                      {roadsVertical.map((col) => (
-                        <line
-                          key={`v-${col}`}
-                          x1={col * CELL + CELL / 2}
-                          y1={0}
-                          x2={col * CELL + CELL / 2}
-                          y2={GRID_H * CELL}
-                          stroke="#94a3b8"
-                          strokeWidth="7"
-                          strokeDasharray="10 8"
-                          opacity="0.8"
-                        />
-                      ))}
+                      <path
+                        d="M40 520 C180 470, 280 500, 390 450 S620 360, 860 300"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeDasharray="10 10"
+                        opacity="0.9"
+                      />
+                      <path
+                        d="M110 65 C230 120, 330 160, 430 220 S620 330, 790 470"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeDasharray="10 10"
+                        opacity="0.9"
+                      />
+                      <path
+                        d="M250 40 C260 170, 280 270, 320 380 S420 520, 470 585"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeDasharray="10 10"
+                        opacity="0.9"
+                      />
+                      <path
+                        d="M640 30 C610 140, 570 235, 540 330 S490 510, 470 590"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeDasharray="10 10"
+                        opacity="0.9"
+                      />
+                      <path
+                        d="M55 250 C170 240, 305 220, 470 230 S660 250, 845 230"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeDasharray="8 8"
+                        opacity="0.9"
+                      />
 
                       {selectedHospital && (
                         <line
-                          x1={userPosition.x * CELL + CELL / 2}
-                          y1={userPosition.y * CELL + CELL / 2}
-                          x2={selectedHospital.x * CELL + CELL / 2}
-                          y2={selectedHospital.y * CELL + CELL / 2}
+                          x1={userPosition.x}
+                          y1={userPosition.y}
+                          x2={selectedHospital.x}
+                          y2={selectedHospital.y}
                           stroke="#16a34a"
                           strokeWidth="4"
-                          strokeDasharray="8 8"
-                          opacity="0.9"
+                          strokeDasharray="10 8"
+                          opacity="0.95"
                         />
                       )}
                     </svg>
+
+                    <button
+                      type="button"
+                      onClick={() => setUserPosition({ x: 520, y: 490 })}
+                      className="absolute left-[42px] top-[500px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                    >
+                      Av. da Marginal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUserPosition({ x: 205, y: 110 })}
+                      className="absolute left-[120px] top-[70px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                    >
+                      Av. Acordos de Lusaka
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUserPosition({ x: 260, y: 300 })}
+                      className="absolute left-[210px] top-[255px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                    >
+                      Av. Julius Nyerere
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUserPosition({ x: 555, y: 120 })}
+                      className="absolute left-[575px] top-[72px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                    >
+                      Av. Kenneth Kaunda
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUserPosition({ x: 620, y: 225 })}
+                      className="absolute left-[650px] top-[205px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                    >
+                      Av. 24 de Julho
+                    </button>
+
+                    <div className="absolute left-[32px] top-[52px] h-20 w-28 rounded-[24px] bg-[#cfeefe]/80 blur-[2px]" />
+                    <div className="absolute left-[40px] top-[58px] rounded-full bg-[#8ed0f7] px-3 py-1 text-[11px] font-semibold text-sky-800 shadow-sm">
+                      Baía de Maputo
+                    </div>
+
+                    <div
+                      className="absolute z-30 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-white bg-slate-900 text-white shadow-lg"
+                      style={{
+                        left: userPosition.x,
+                        top: userPosition.y,
+                      }}
+                    >
+                      <UserRound size={16} />
+                    </div>
 
                     {HOSPITALS.map((hospital) => {
                       const isVisible = rankedHospitals.some(
@@ -816,7 +961,7 @@ export default function ConsultasPage() {
                           key={hospital.id}
                           type="button"
                           onClick={() => setSelectedHospitalId(hospital.id)}
-                          className={`absolute z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border-2 shadow-md transition hover:scale-105 ${
+                          className={`absolute z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border-2 shadow-lg transition hover:scale-105 ${
                             isSelected
                               ? "border-green-600 bg-green-600 text-white"
                               : isRecommended
@@ -826,24 +971,15 @@ export default function ConsultasPage() {
                               : "border-slate-200 bg-slate-100 text-slate-400"
                           }`}
                           style={{
-                            left: hospital.x * CELL + CELL / 2,
-                            top: hospital.y * CELL + CELL / 2,
+                            left: hospital.x,
+                            top: hospital.y,
                           }}
+                          title={hospital.name}
                         >
-                          <Hospital size={16} />
+                          <Hospital size={17} />
                         </button>
                       );
                     })}
-
-                    <div
-                      className="absolute z-30 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-white bg-slate-900 text-white shadow-lg"
-                      style={{
-                        left: userPosition.x * CELL + CELL / 2,
-                        top: userPosition.y * CELL + CELL / 2,
-                      }}
-                    >
-                      <UserRound size={16} />
-                    </div>
                   </div>
                 </div>
               </section>
@@ -876,7 +1012,7 @@ export default function ConsultasPage() {
                       <div className="rounded-2xl bg-slate-50 p-3">
                         <p className="text-slate-500">Distância</p>
                         <p className="font-semibold text-slate-900">
-                          {formatGridDistance(recommendedHospital.distance)}
+                          {formatMapDistance(recommendedHospital.distance)}
                         </p>
                       </div>
                       <div className="rounded-2xl bg-slate-50 p-3">
@@ -953,7 +1089,7 @@ export default function ConsultasPage() {
 
                       <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
-                          {formatGridDistance(item.distance)}
+                          {formatMapDistance(item.distance)}
                         </span>
                         <span
                           className={`rounded-full border px-2.5 py-1 ${statusStyles[item.hospital.status]}`}
@@ -971,274 +1107,473 @@ export default function ConsultasPage() {
             </section>
           )}
 
-          <aside className={`space-y-6 ${hasSubmitted ? "order-1 xl:order-2" : ""}`}>
+          <aside className={`space-y-5 ${hasSubmitted ? "order-1 xl:order-2" : ""}`}>
             <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
-              <div className="mb-4 flex items-center gap-2">
-                <Sparkles size={18} className="text-green-600" />
-                <h3 className="text-lg font-bold text-slate-900">Painel de consulta</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Procurar especialidade
-                  </label>
-                  <div className="relative">
-                    <Search
-                      size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                    <input
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Ex: cardio, derma, orto..."
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-green-400 focus:bg-white"
-                    />
+              {!hasSubmitted ? (
+                <>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Sparkles size={18} className="text-green-600" />
+                    <h3 className="text-lg font-bold text-slate-900">Painel de consulta</h3>
                   </div>
-                </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Especialidade
-                  </label>
-                  <select
-                    value={selectedSpecialty}
-                    onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
-                  >
-                    {specialtyOptions.map((specialty) => (
-                      <option key={specialty} value={specialty}>
-                        {specialty}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Procurar especialidade
+                      </label>
+                      <div className="relative">
+                        <Search
+                          size={16}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                        <input
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Ex: cardio, derma, orto..."
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                        />
+                      </div>
+                    </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Tipo de hospital
-                  </label>
-                  <div className="flex rounded-2xl bg-slate-100 p-1">
-                    <button
-                      type="button"
-                      onClick={() => setHospitalFilter("public")}
-                      className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
-                        hospitalFilter === "public"
-                          ? "bg-green-600 text-white shadow"
-                          : "text-slate-600"
-                      }`}
-                    >
-                      Público
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setHospitalFilter("all")}
-                      className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
-                        hospitalFilter === "all"
-                          ? "bg-blue-600 text-white shadow"
-                          : "text-slate-600"
-                      }`}
-                    >
-                      Público + Privado
-                    </button>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Sintomas
-                  </label>
-                  <textarea
-                    value={symptoms}
-                    onChange={(e) => setSymptoms(e.target.value)}
-                    rows={4}
-                    placeholder="Ex: dor no peito, falta de ar, tontura..."
-                    className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-400"
-                  />
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {QUICK_SYMPTOMS.map((item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        onClick={() => setSymptoms(item)}
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-green-300 hover:text-green-700"
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Especialidade
+                      </label>
+                      <select
+                        value={selectedSpecialty}
+                        onChange={(e) => setSelectedSpecialty(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
                       >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        {specialtyOptions.map((specialty) => (
+                          <option key={specialty} value={specialty}>
+                            {specialty}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                {!hasSubmitted && (
-                  <button
-                    type="button"
-                    onClick={submitPanel}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
-                  >
-                    <Activity size={16} />
-                    Continuar
-                  </button>
-                )}
-
-                {hasSubmitted && (
-                  <>
-                    {analysisLoading && (
-                      <div className="rounded-2xl bg-slate-50 p-4">
-                        <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
-                          <Activity size={16} className="animate-pulse text-green-600" />
-                          Sistema em análise
-                        </div>
-                        <p className="text-sm text-slate-500">{analysisStep}</p>
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                          <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-green-500 to-blue-500" />
-                        </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Tipo de hospital
+                      </label>
+                      <div className="flex rounded-2xl bg-slate-100 p-1">
+                        <button
+                          type="button"
+                          onClick={() => setHospitalFilter("public")}
+                          className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                            hospitalFilter === "public"
+                              ? "bg-green-600 text-white shadow"
+                              : "text-slate-600"
+                          }`}
+                        >
+                          Público
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHospitalFilter("all")}
+                          className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                            hospitalFilter === "all"
+                              ? "bg-blue-600 text-white shadow"
+                              : "text-slate-600"
+                          }`}
+                        >
+                          Público + Privado
+                        </button>
                       </div>
-                    )}
+                    </div>
 
-                    {analysisRecommendation && !analysisLoading && (
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900">
-                              Recomendação simulada
-                            </p>
-                            <p className="mt-1 text-sm text-slate-600">
-                              {analysisRecommendation.reason}
-                            </p>
-                          </div>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${priorityStyles[analysisRecommendation.priority]}`}
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Sintomas
+                      </label>
+                      <textarea
+                        value={symptoms}
+                        onChange={(e) => setSymptoms(e.target.value)}
+                        rows={4}
+                        placeholder="Ex: dor no peito, falta de ar, tontura..."
+                        className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                      />
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {QUICK_SYMPTOMS.map((item) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => setSymptoms(item)}
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-green-300 hover:text-green-700"
                           >
-                            {analysisRecommendation.priority}
-                          </span>
-                        </div>
-
-                        <div className="mt-3 flex items-center gap-2 text-sm text-green-700">
-                          <Stethoscope size={16} />
-                          <span className="font-semibold">
-                            {analysisRecommendation.specialty}
-                          </span>
-                        </div>
+                            {item}
+                          </button>
+                        ))}
                       </div>
-                    )}
-
-                    {selectedHospital && !analysisLoading && (
-                      <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm">
-                        <div className="mb-4 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="mb-1 flex items-center gap-2">
-                              <MapPin size={16} className="text-green-600" />
-                              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-green-600">
-                                Unidade selecionada
-                              </p>
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-900">
-                              {selectedHospital.name}
-                            </h3>
-                            <p className="text-sm text-slate-500">
-                              {selectedHospital.zone}
-                            </p>
-                          </div>
-
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[selectedHospital.status]}`}
-                          >
-                            {selectedHospital.status}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="rounded-2xl bg-slate-50 p-3">
-                            <div className="mb-1 flex items-center gap-2 text-slate-500">
-                              <Clock3 size={15} />
-                              <span className="text-xs">Espera</span>
-                            </div>
-                            <p className="font-semibold text-slate-900">
-                              {selectedHospital.estimatedWait} min
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-3">
-                            <div className="mb-1 flex items-center gap-2 text-slate-500">
-                              <Navigation size={15} />
-                              <span className="text-xs">Distância</span>
-                            </div>
-                            <p className="font-semibold text-slate-900">
-                              {formatGridDistance(selectedHospitalData?.distance ?? 0)}
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-3">
-                            <div className="mb-1 flex items-center gap-2 text-slate-500">
-                              <Users size={15} />
-                              <span className="text-xs">Disponíveis</span>
-                            </div>
-                            <p className="font-semibold text-slate-900">
-                              {selectedAvailableDoctors.length}/{selectedDoctors.length}
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-3">
-                            <div className="mb-1 flex items-center gap-2 text-slate-500">
-                              <Building2 size={15} />
-                              <span className="text-xs">Estado</span>
-                            </div>
-                            <p className="font-semibold text-slate-900">
-                              {getHospitalStatusDescription(selectedHospital.status)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {selectedDoctors.length > 0 && (
-                          <div className="mt-4 rounded-2xl bg-slate-50 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                              Médico principal
-                            </p>
-                            <p className="mt-1 font-semibold text-slate-900">
-                              {selectedDoctors[0].name}
-                            </p>
-                            <p className="text-sm text-slate-600">
-                              {selectedDoctors[0].nextSlot}
-                            </p>
-                          </div>
-                        )}
-                      </section>
-                    )}
+                    </div>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setHasSubmitted(false);
-                        setAnalysisLoading(false);
-                        setAnalysisStep("");
-                        setAnalysisRecommendation(null);
-                      }}
-                      className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                      onClick={submitPanel}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
                     >
-                      Editar pesquisa
+                      <Activity size={16} />
+                      Continuar
                     </button>
-                  </>
-                )}
-              </div>
-            </section>
-
-            {hasSubmitted && (
-              <section className="rounded-[28px] border border-amber-200 bg-amber-50 p-5">
-                <div className="flex items-start gap-3">
-                  <AlertCircle size={18} className="mt-0.5 text-amber-600" />
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-amber-800">Nota</p>
-                    <p className="mt-1 text-sm text-amber-700">
-                      Esta página é uma simulação visual e funcional para prototipagem.
+                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-green-600">
+                      Consulta preparada
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {selectedSpecialty} • {hospitalFilter === "public" ? "Público" : "Público + Privado"}
                     </p>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={resetEditing}
+                    className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                  >
+                    Editar consulta
+                  </button>
+                </div>
+              )}
+            </section>
+
+            {hasSubmitted && analysisLoading && (
+              <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm">
+                <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Activity size={16} className="animate-pulse text-green-600" />
+                  A processar consulta
+                </div>
+                <p className="text-sm text-slate-500">{analysisStep}</p>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-green-500 to-blue-500" />
                 </div>
               </section>
+            )}
+
+            {hasSubmitted && analysisRecommendation && !analysisLoading && selectedHospital && (
+              <>
+                <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm">
+                  <div className="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                      <div className="mb-1 flex items-center gap-2">
+                        <MapPin size={16} className="text-green-600" />
+                        <p className="text-sm font-semibold uppercase tracking-[0.12em] text-green-600">
+                          Unidade selecionada
+                        </p>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900">
+                        {selectedHospital.name}
+                      </h3>
+                      <p className="text-sm text-slate-500">{selectedHospital.zone}</p>
+                    </div>
+
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[selectedHospital.status]}`}
+                    >
+                      {selectedHospital.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="mb-1 flex items-center gap-2 text-slate-500">
+                        <Clock3 size={15} />
+                        <span className="text-xs">Espera</span>
+                      </div>
+                      <p className="font-semibold text-slate-900">
+                        {selectedHospital.estimatedWait} min
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="mb-1 flex items-center gap-2 text-slate-500">
+                        <Navigation size={15} />
+                        <span className="text-xs">Distância</span>
+                      </div>
+                      <p className="font-semibold text-slate-900">
+                        {formatMapDistance(selectedHospitalData?.distance ?? 0)}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="mb-1 flex items-center gap-2 text-slate-500">
+                        <Users size={15} />
+                        <span className="text-xs">Disponíveis</span>
+                      </div>
+                      <p className="font-semibold text-slate-900">
+                        {selectedAvailableDoctors.length}/{selectedDoctors.length}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="mb-1 flex items-center gap-2 text-slate-500">
+                        <Building2 size={15} />
+                        <span className="text-xs">Estado</span>
+                      </div>
+                      <p className="font-semibold text-slate-900">
+                        {getHospitalStatusDescription(selectedHospital.status)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedDoctor && (
+                    <div className="mt-4 rounded-2xl bg-slate-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        Médico atribuído
+                      </p>
+                      <p className="mt-1 font-semibold text-slate-900">
+                        {selectedDoctor.name}
+                      </p>
+                      <p className="text-sm text-slate-600">
+                        {selectedDoctor.specialty} • {selectedDoctor.nextSlot}
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={openBooking}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                  >
+                    <CalendarDays size={16} />
+                    Marcar consulta
+                  </button>
+                </section>
+
+                {bookingConfirmed && selectedDoctor && (
+                  <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+                    <div className="mb-4 flex items-center gap-2">
+                      <ReceiptText size={18} className="text-green-600" />
+                      <h3 className="text-lg font-bold text-slate-900">Comprovativo digital</h3>
+                    </div>
+
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm text-slate-500">Código</p>
+                          <p className="font-bold text-slate-900">{receiptId}</p>
+                        </div>
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-semibold ${urgencyStyles[urgencyStatus]}`}
+                        >
+                          {urgencyStatus}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 space-y-3 text-sm">
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Paciente</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {bookingForm.fullName}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Telefone</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {bookingForm.phone}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Data</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {formatTodayDate()}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Especialidade</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {selectedSpecialty}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Unidade</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {selectedHospital.name}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Médico</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {selectedDoctor.name}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Próximo horário</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {selectedDoctor.nextSlot}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Tempo de espera</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {selectedHospital.estimatedWait} min
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                          <span className="text-slate-500">Urgência</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {urgencyStatus}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-4">
+                          <span className="text-slate-500">SMS</span>
+                          <span className="text-right font-medium text-slate-900">
+                            {bookingForm.receiveSms ? "Solicitado" : "Não solicitado"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {bookingForm.receiveSms && (
+                        <div className="mt-4 rounded-2xl bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
+                          O resumo da consulta será enviado por SMS para {bookingForm.phone}.
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
           </aside>
         </div>
       </div>
+
+      {showBookingModal && selectedHospital && selectedDoctor && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/55 p-3 sm:items-center sm:p-6">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[28px] bg-white shadow-2xl">
+            <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-green-600">
+                  Confirmar consulta
+                </p>
+                <h3 className="text-lg font-bold text-slate-900">Revisão dos dados</h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowBookingModal(false)}
+                className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-5 p-5">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="grid gap-3 text-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Especialidade</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {selectedSpecialty}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Unidade</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {selectedHospital.name}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Médico</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {selectedDoctor.name}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Próximo horário</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {selectedDoctor.nextSlot}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Tempo de espera</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {selectedHospital.estimatedWait} min
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="text-slate-500">Urgência</span>
+                    <span className="text-right font-medium text-slate-900">
+                      {urgencyStatus}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Nome completo
+                </label>
+                <input
+                  value={bookingForm.fullName}
+                  onChange={(e) =>
+                    setBookingForm((prev) => ({ ...prev, fullName: e.target.value }))
+                  }
+                  placeholder="Introduza o seu nome completo"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Número de telefone
+                </label>
+                <input
+                  value={bookingForm.phone}
+                  onChange={(e) =>
+                    setBookingForm((prev) => ({ ...prev, phone: e.target.value }))
+                  }
+                  placeholder="+258 84 000 0000"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                />
+              </div>
+
+              <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <input
+                  type="checkbox"
+                  checked={bookingForm.receiveSms}
+                  onChange={(e) =>
+                    setBookingForm((prev) => ({
+                      ...prev,
+                      receiveSms: e.target.checked,
+                    }))
+                  }
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-green-600"
+                />
+                <div>
+                  <p className="text-sm font-medium text-slate-900">
+                    Receber detalhes por SMS
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Inclui unidade, médico, horário, urgência e tempo de espera.
+                  </p>
+                </div>
+              </label>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setShowBookingModal(false)}
+                  className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmBooking}
+                  disabled={!bookingForm.fullName.trim() || !bookingForm.phone.trim()}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <CheckCircle2 size={16} />
+                  Confirmar consulta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
