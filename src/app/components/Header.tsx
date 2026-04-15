@@ -9,6 +9,7 @@ import {
   Info,
   LogIn,
   History,
+  ClipboardPlus,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -35,7 +36,7 @@ export const Header = () => {
         <nav className="hidden md:flex gap-8 items-center text-sm font-medium">
           <NavItem href="/" icon={<Home size={16} />} label="Início" />
           <NavItem href="/about" icon={<Info size={16} />} label="Sobre" />
-          <NavItem href="/consultas" icon={<Info size={16} />} label="Consultas" />
+          <NavItem href="/consultas" icon={<ClipboardPlus size={16} />} label="Consultas" />
           <NavItem href="/history" icon={<History size={16} />} label="Histórico" />
 
           <NavItem
@@ -57,6 +58,7 @@ export const Header = () => {
         <nav className="md:hidden px-4 pb-6 space-y-3 bg-white border-t animate-fadeIn">
           <NavItem href="/" icon={<Home size={18} />} label="Início" onClick={toggleMenu} block />
           <NavItem href="/about" icon={<Info size={18} />} label="Sobre" onClick={toggleMenu} block />
+          <NavItem href="/consultas" icon={<ClipboardPlus size={16} />} label="Consultas" />
           <NavItem href="/history" icon={<History size={18} />} label="Histórico" onClick={toggleMenu} block />
 
           <NavItem
