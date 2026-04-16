@@ -12,14 +12,12 @@ import {
   Hospital,
   MapPin,
   Navigation,
-  Phone,
   Search,
   Sparkles,
   Stethoscope,
   UserRound,
   Users,
   X,
-  MessageSquareText,
   ReceiptText,
 } from "lucide-react";
 
@@ -466,12 +464,6 @@ const statusStyles: Record<CapacityStatus, string> = {
   Cheio: "bg-rose-100 text-rose-700 border-rose-200",
 };
 
-const priorityStyles: Record<RecommendationPriority, string> = {
-  Alta: "bg-rose-100 text-rose-700",
-  Média: "bg-amber-100 text-amber-700",
-  Baixa: "bg-emerald-100 text-emerald-700",
-};
-
 const urgencyStyles: Record<UrgencyTraffic, string> = {
   Verde: "bg-emerald-100 text-emerald-700 border-emerald-200",
   Amarelo: "bg-amber-100 text-amber-700 border-amber-200",
@@ -617,10 +609,6 @@ function getHospitalStatusDescription(status: CapacityStatus) {
   if (status === "Vazio") return "Baixa lotação";
   if (status === "Moderado") return "Lotação moderada";
   return "Alta lotação";
-}
-
-function getEtaMinutes(dist: number) {
-  return Math.max(7, Math.round(dist / 18));
 }
 
 function formatTodayDate() {
@@ -795,37 +783,36 @@ export default function ConsultasPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-3 sm:p-4 md:p-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-5 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)] backdrop-blur">
-          <p className="mb-1 text-sm font-semibold uppercase tracking-[0.18em] text-green-600">
+    <div className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-green-600">
             ViaVerde Consultas
           </p>
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
             Encontre a melhor unidade para a sua consulta
           </h1>
-          <p className="mt-2 max-w-3xl text-sm text-slate-600">
+          <p className="mt-2 max-w-3xl text-sm text-slate-500">
             Escolha a especialidade ou descreva os seus sintomas para ver a unidade
             recomendada, tempo de espera, disponibilidade médica e marcar a consulta.
           </p>
         </div>
 
-        <div className={`grid gap-6 ${hasSubmitted ? "xl:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
+        <div className={`grid gap-6 ${hasSubmitted ? "lg:grid-cols-[1fr_360px]" : ""}`}>
           {hasSubmitted && (
-            <section className="order-2 space-y-5 xl:order-1">
-              <section className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
-                <div className="border-b border-slate-100 p-4 sm:p-5">
+            <div className="order-2 space-y-5 lg:order-1">
+              {/* Mapa */}
+              <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900 md:text-xl">
-                        Mapa de Maputo
-                      </h2>
+                      <h2 className="text-lg font-bold text-slate-900">Mapa de Maputo</h2>
                       <p className="text-sm text-slate-500">
                         Toque no mapa para mover a sua localização ou selecione uma unidade.
                       </p>
                     </div>
-
-                    <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                    <div className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
                       <Navigation size={16} className="text-green-600" />
                       Posição atual
                     </div>
@@ -834,10 +821,10 @@ export default function ConsultasPage() {
 
                 <div className="overflow-x-auto">
                   <div
-                    className="relative min-w-[760px] bg-[#eef6ef]"
+                    className="relative min-w-[760px] bg-slate-100"
                     style={{ width: MAP_W, height: MAP_H }}
                   >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,197,94,0.08),transparent_18%),radial-gradient(circle_at_85%_12%,rgba(59,130,246,0.08),transparent_20%),radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.06),transparent_20%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,197,94,0.05),transparent_18%)]" />
 
                     <svg
                       className="absolute inset-0 h-full w-full"
@@ -879,47 +866,6 @@ export default function ConsultasPage() {
                         strokeLinecap="round"
                       />
 
-                      <path
-                        d="M40 520 C180 470, 280 500, 390 450 S620 360, 860 300"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeDasharray="10 10"
-                        opacity="0.9"
-                      />
-                      <path
-                        d="M110 65 C230 120, 330 160, 430 220 S620 330, 790 470"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeDasharray="10 10"
-                        opacity="0.9"
-                      />
-                      <path
-                        d="M250 40 C260 170, 280 270, 320 380 S420 520, 470 585"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeDasharray="10 10"
-                        opacity="0.9"
-                      />
-                      <path
-                        d="M640 30 C610 140, 570 235, 540 330 S490 510, 470 590"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeDasharray="10 10"
-                        opacity="0.9"
-                      />
-                      <path
-                        d="M55 250 C170 240, 305 220, 470 230 S660 250, 845 230"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2"
-                        strokeDasharray="8 8"
-                        opacity="0.9"
-                      />
-
                       {selectedHospital && (
                         <line
                           x1={userPosition.x}
@@ -927,9 +873,9 @@ export default function ConsultasPage() {
                           x2={selectedHospital.x}
                           y2={selectedHospital.y}
                           stroke="#16a34a"
-                          strokeWidth="4"
-                          strokeDasharray="10 8"
-                          opacity="0.95"
+                          strokeWidth="3"
+                          strokeDasharray="8 6"
+                          opacity="0.8"
                         />
                       )}
                     </svg>
@@ -937,52 +883,52 @@ export default function ConsultasPage() {
                     <button
                       type="button"
                       onClick={() => setUserPosition({ x: 520, y: 490 })}
-                      className="absolute left-[42px] top-[500px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                      className="absolute left-[42px] top-[500px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm"
                     >
                       Av. da Marginal
                     </button>
                     <button
                       type="button"
                       onClick={() => setUserPosition({ x: 205, y: 110 })}
-                      className="absolute left-[120px] top-[70px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                      className="absolute left-[120px] top-[70px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm"
                     >
                       Av. Acordos de Lusaka
                     </button>
                     <button
                       type="button"
                       onClick={() => setUserPosition({ x: 260, y: 300 })}
-                      className="absolute left-[210px] top-[255px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                      className="absolute left-[210px] top-[255px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm"
                     >
                       Av. Julius Nyerere
                     </button>
                     <button
                       type="button"
                       onClick={() => setUserPosition({ x: 555, y: 120 })}
-                      className="absolute left-[575px] top-[72px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                      className="absolute left-[575px] top-[72px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm"
                     >
                       Av. Kenneth Kaunda
                     </button>
                     <button
                       type="button"
                       onClick={() => setUserPosition({ x: 620, y: 225 })}
-                      className="absolute left-[650px] top-[205px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow"
+                      className="absolute left-[650px] top-[205px] rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-slate-600 shadow-sm"
                     >
                       Av. 24 de Julho
                     </button>
 
-                    <div className="absolute left-[32px] top-[52px] h-20 w-28 rounded-[24px] bg-[#cfeefe]/80 blur-[2px]" />
-                    <div className="absolute left-[40px] top-[58px] rounded-full bg-[#8ed0f7] px-3 py-1 text-[11px] font-semibold text-sky-800 shadow-sm">
+                    <div className="absolute left-[32px] top-[52px] h-20 w-28 rounded-lg bg-sky-100/60" />
+                    <div className="absolute left-[40px] top-[58px] rounded-full bg-sky-200 px-3 py-1 text-[11px] font-semibold text-sky-800 shadow-sm">
                       Baía de Maputo
                     </div>
 
                     <div
-                      className="absolute z-30 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-white bg-slate-900 text-white shadow-lg"
+                      className="absolute z-30 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-slate-800 text-white shadow-md"
                       style={{
                         left: userPosition.x,
                         top: userPosition.y,
                       }}
                     >
-                      <UserRound size={16} />
+                      <UserRound size={14} />
                     </div>
 
                     {HOSPITALS.map((hospital) => {
@@ -997,9 +943,9 @@ export default function ConsultasPage() {
                           key={hospital.id}
                           type="button"
                           onClick={() => setSelectedHospitalId(hospital.id)}
-                          className={`absolute z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border-2 shadow-lg transition hover:scale-105 ${
+                          className={`absolute z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border-2 shadow-sm transition hover:scale-105 ${
                             isSelected
-                              ? "border-green-600 bg-green-600 text-white"
+                              ? "border-green-500 bg-green-500 text-white"
                               : isRecommended
                               ? "border-blue-500 bg-blue-500 text-white"
                               : isVisible
@@ -1012,25 +958,26 @@ export default function ConsultasPage() {
                           }}
                           title={hospital.name}
                         >
-                          <Hospital size={17} />
+                          <Hospital size={16} />
                         </button>
                       );
                     })}
                   </div>
                 </div>
-              </section>
+              </div>
 
+              {/* Recomendação Principal */}
               {recommendedHospital && (
-                <section className="rounded-[28px] border border-green-200 bg-gradient-to-br from-green-50 to-blue-50 p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+                <div className="rounded-lg border border-green-200 bg-green-50 p-5 shadow-sm">
                   <div className="mb-3 flex items-center gap-2">
                     <CheckCircle2 size={18} className="text-green-600" />
                     <h3 className="text-lg font-bold text-slate-900">Melhor recomendação</h3>
                   </div>
 
-                  <div className="rounded-2xl bg-white p-4">
+                  <div className="rounded-lg bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-base font-bold text-slate-900 md:text-lg">
+                        <p className="text-base font-bold text-slate-900">
                           {recommendedHospital.hospital.name}
                         </p>
                         <p className="text-sm text-slate-500">
@@ -1048,7 +995,7 @@ export default function ConsultasPage() {
                       {recommendedHospital.hospital.images.map((image, index) => (
                         <div
                           key={image}
-                          className="h-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100"
+                          className="h-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                         >
                           <img
                             src={image}
@@ -1060,13 +1007,13 @@ export default function ConsultasPage() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                      <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="rounded-lg bg-slate-50 p-3">
                         <p className="text-slate-500">Distância</p>
                         <p className="font-semibold text-slate-900">
                           {formatMapDistance(recommendedHospital.distance)}
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
+                      <div className="rounded-lg bg-slate-50 p-3">
                         <p className="text-slate-500">Espera</p>
                         <p className="font-semibold text-slate-900">
                           {recommendedHospital.hospital.estimatedWait} min
@@ -1075,7 +1022,7 @@ export default function ConsultasPage() {
                     </div>
 
                     {recommendedDoctor && (
-                      <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                         <p className="font-semibold text-slate-900">
                           {recommendedDoctor.name}
                         </p>
@@ -1088,16 +1035,17 @@ export default function ConsultasPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedHospitalId(recommendedHospital.hospital.id)}
-                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
                     >
                       Ver unidade
                       <ArrowRight size={16} />
                     </button>
                   </div>
-                </section>
+                </div>
               )}
 
-              <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+              {/* Lista de Hospitais */}
+              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center gap-2">
                   <Building2 size={18} className="text-blue-600" />
                   <h3 className="text-lg font-bold text-slate-900">Hospitais compatíveis</h3>
@@ -1105,7 +1053,7 @@ export default function ConsultasPage() {
 
                 <div className="space-y-3">
                   {rankedHospitals.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
                       Não há hospitais compatíveis com esta especialidade.
                     </div>
                   )}
@@ -1115,7 +1063,7 @@ export default function ConsultasPage() {
                       key={item.hospital.id}
                       type="button"
                       onClick={() => setSelectedHospitalId(item.hospital.id)}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                      className={`w-full rounded-lg border p-4 text-left transition ${
                         selectedHospitalId === item.hospital.id
                           ? "border-green-500 bg-green-50"
                           : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -1142,7 +1090,7 @@ export default function ConsultasPage() {
                         {item.hospital.images.map((image, imageIndex) => (
                           <div
                             key={image}
-                            className="h-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-100"
+                            className="h-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                           >
                             <img
                               src={image}
@@ -1169,12 +1117,13 @@ export default function ConsultasPage() {
                     </button>
                   ))}
                 </div>
-              </section>
-            </section>
+              </div>
+            </div>
           )}
 
-          <aside className={`space-y-5 ${hasSubmitted ? "order-1 xl:order-2" : ""}`}>
-            <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+          {/* Sidebar */}
+          <aside className={`space-y-5 ${hasSubmitted ? "order-1 lg:order-2" : ""}`}>
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               {!hasSubmitted ? (
                 <>
                   <div className="mb-4 flex items-center gap-2">
@@ -1196,7 +1145,7 @@ export default function ConsultasPage() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Ex: cardio, derma, orto..."
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-green-400 focus:bg-white"
                         />
                       </div>
                     </div>
@@ -1208,7 +1157,7 @@ export default function ConsultasPage() {
                       <select
                         value={selectedSpecialty}
                         onChange={(e) => setSelectedSpecialty(e.target.value)}
-                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-green-400 focus:bg-white"
                       >
                         {specialtyOptions.map((specialty) => (
                           <option key={specialty} value={specialty}>
@@ -1222,14 +1171,14 @@ export default function ConsultasPage() {
                       <label className="mb-2 block text-sm font-medium text-slate-700">
                         Tipo de hospital
                       </label>
-                      <div className="flex rounded-2xl bg-slate-100 p-1">
+                      <div className="flex rounded-lg bg-slate-100 p-1">
                         <button
                           type="button"
                           onClick={() => setHospitalFilter("public")}
-                          className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
                             hospitalFilter === "public"
-                              ? "bg-green-600 text-white shadow"
-                              : "text-slate-600"
+                              ? "bg-green-600 text-white shadow-sm"
+                              : "text-slate-600 hover:bg-slate-200"
                           }`}
                         >
                           Público
@@ -1237,10 +1186,10 @@ export default function ConsultasPage() {
                         <button
                           type="button"
                           onClick={() => setHospitalFilter("all")}
-                          className={`flex-1 rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
                             hospitalFilter === "all"
-                              ? "bg-blue-600 text-white shadow"
-                              : "text-slate-600"
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "text-slate-600 hover:bg-slate-200"
                           }`}
                         >
                           Público + Privado
@@ -1248,7 +1197,7 @@ export default function ConsultasPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                       <label className="mb-2 block text-sm font-medium text-slate-700">
                         Sintomas
                       </label>
@@ -1257,7 +1206,7 @@ export default function ConsultasPage() {
                         onChange={(e) => setSymptoms(e.target.value)}
                         rows={4}
                         placeholder="Ex: dor no peito, falta de ar, tontura..."
-                        className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-400"
+                        className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-green-400"
                       />
 
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -1277,7 +1226,7 @@ export default function ConsultasPage() {
                     <button
                       type="button"
                       onClick={submitPanel}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
                     >
                       <Activity size={16} />
                       Continuar
@@ -1287,7 +1236,7 @@ export default function ConsultasPage() {
               ) : (
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-green-600">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
                       Consulta preparada
                     </p>
                     <p className="mt-1 text-sm text-slate-600">
@@ -1298,35 +1247,35 @@ export default function ConsultasPage() {
                   <button
                     type="button"
                     onClick={resetEditing}
-                    className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                    className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
                   >
                     Editar consulta
                   </button>
                 </div>
               )}
-            </section>
+            </div>
 
             {hasSubmitted && analysisLoading && (
-              <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                   <Activity size={16} className="animate-pulse text-green-600" />
                   A processar consulta
                 </div>
                 <p className="text-sm text-slate-500">{analysisStep}</p>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-green-500 to-blue-500" />
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full w-2/3 animate-pulse rounded-full bg-green-600" />
                 </div>
-              </section>
+              </div>
             )}
 
             {hasSubmitted && analysisRecommendation && !analysisLoading && selectedHospital && (
               <>
-                <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
                       <div className="mb-1 flex items-center gap-2">
                         <MapPin size={16} className="text-green-600" />
-                        <p className="text-sm font-semibold uppercase tracking-[0.12em] text-green-600">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
                           Unidade selecionada
                         </p>
                       </div>
@@ -1344,9 +1293,9 @@ export default function ConsultasPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="rounded-lg bg-slate-50 p-3">
                       <div className="mb-1 flex items-center gap-2 text-slate-500">
-                        <Clock3 size={15} />
+                        <Clock3 size={14} />
                         <span className="text-xs">Espera</span>
                       </div>
                       <p className="font-semibold text-slate-900">
@@ -1354,9 +1303,9 @@ export default function ConsultasPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="rounded-lg bg-slate-50 p-3">
                       <div className="mb-1 flex items-center gap-2 text-slate-500">
-                        <Navigation size={15} />
+                        <Navigation size={14} />
                         <span className="text-xs">Distância</span>
                       </div>
                       <p className="font-semibold text-slate-900">
@@ -1364,9 +1313,9 @@ export default function ConsultasPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="rounded-lg bg-slate-50 p-3">
                       <div className="mb-1 flex items-center gap-2 text-slate-500">
-                        <Users size={15} />
+                        <Users size={14} />
                         <span className="text-xs">Disponíveis</span>
                       </div>
                       <p className="font-semibold text-slate-900">
@@ -1374,9 +1323,9 @@ export default function ConsultasPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-slate-50 p-3">
+                    <div className="rounded-lg bg-slate-50 p-3">
                       <div className="mb-1 flex items-center gap-2 text-slate-500">
-                        <Building2 size={15} />
+                        <Building2 size={14} />
                         <span className="text-xs">Estado</span>
                       </div>
                       <p className="font-semibold text-slate-900">
@@ -1386,8 +1335,8 @@ export default function ConsultasPage() {
                   </div>
 
                   {selectedDoctor && (
-                    <div className="mt-4 rounded-2xl bg-slate-50 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
                         Médico atribuído
                       </p>
                       <p className="mt-1 font-semibold text-slate-900">
@@ -1402,21 +1351,21 @@ export default function ConsultasPage() {
                   <button
                     type="button"
                     onClick={openBooking}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
                   >
                     <CalendarDays size={16} />
                     Marcar consulta
                   </button>
-                </section>
+                </div>
 
                 {bookingConfirmed && selectedDoctor && (
-                  <section className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)]">
+                  <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="mb-4 flex items-center gap-2">
                       <ReceiptText size={18} className="text-green-600" />
                       <h3 className="text-lg font-bold text-slate-900">Comprovativo digital</h3>
                     </div>
 
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
+                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm text-slate-500">Código</p>
@@ -1493,12 +1442,12 @@ export default function ConsultasPage() {
                       </div>
 
                       {bookingForm.receiveSms && (
-                        <div className="mt-4 rounded-2xl bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
+                        <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
                           O resumo da consulta será enviado por SMS para {bookingForm.phone}.
                         </div>
                       )}
                     </div>
-                  </section>
+                  </div>
                 )}
               </>
             )}
@@ -1506,12 +1455,13 @@ export default function ConsultasPage() {
         </div>
       </div>
 
+      {/* Modal */}
       {showBookingModal && selectedHospital && selectedDoctor && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/55 p-3 sm:items-center sm:p-6">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[28px] bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-3 sm:items-center sm:p-6">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl">
             <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-green-600">
+                <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
                   Confirmar consulta
                 </p>
                 <h3 className="text-lg font-bold text-slate-900">Revisão dos dados</h3>
@@ -1527,7 +1477,7 @@ export default function ConsultasPage() {
             </div>
 
             <div className="space-y-5 p-5">
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-lg bg-slate-50 p-4">
                 <div className="grid gap-3 text-sm">
                   <div className="flex items-start justify-between gap-4">
                     <span className="text-slate-500">Especialidade</span>
@@ -1578,7 +1528,7 @@ export default function ConsultasPage() {
                     setBookingForm((prev) => ({ ...prev, fullName: e.target.value }))
                   }
                   placeholder="Introduza o seu nome completo"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-green-400 focus:bg-white"
                 />
               </div>
 
@@ -1592,11 +1542,11 @@ export default function ConsultasPage() {
                     setBookingForm((prev) => ({ ...prev, phone: e.target.value }))
                   }
                   placeholder="+258 84 000 0000"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-green-400 focus:bg-white"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-green-400 focus:bg-white"
                 />
               </div>
 
-              <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <input
                   type="checkbox"
                   checked={bookingForm.receiveSms}
@@ -1612,7 +1562,7 @@ export default function ConsultasPage() {
                   <p className="text-sm font-medium text-slate-900">
                     Receber detalhes por SMS
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs text-slate-500">
                     Inclui unidade, médico, horário, urgência e tempo de espera.
                   </p>
                 </div>
@@ -1622,7 +1572,7 @@ export default function ConsultasPage() {
                 <button
                   type="button"
                   onClick={() => setShowBookingModal(false)}
-                  className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                  className="w-full rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
@@ -1630,7 +1580,7 @@ export default function ConsultasPage() {
                   type="button"
                   onClick={confirmBooking}
                   disabled={!bookingForm.fullName.trim() || !bookingForm.phone.trim()}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <CheckCircle2 size={16} />
                   Confirmar consulta

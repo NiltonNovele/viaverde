@@ -37,7 +37,7 @@ export const Header = () => {
         <div className="hidden md:flex flex-1 justify-end">
           <Link
             href="/dashboard"
-            className="text-sm font-medium bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-colors"
+            className="text-sm font-medium bg-green-600 text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-colors"
           >
             Painel
           </Link>
