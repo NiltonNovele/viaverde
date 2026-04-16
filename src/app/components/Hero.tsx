@@ -1,74 +1,23 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Container from "./Container";
 import {
   PhoneCall,
-  Activity,
-  Hospital,
-  MessageCircle,
   CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
   ClipboardList,
   ArrowRight,
   ShieldCheck,
+  Activity,
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
-import { useState, useEffect } from "react";
-
-const slides = [
-  {
-    title: "Linha Verde Emergencial",
-    description:
-      "Em situações críticas, ligue e receba orientação imediata antes de chegar ao hospital.",
-    icon: <PhoneCall size={22} />,
-  },
-  {
-    title: "Triagem Inteligente",
-    description:
-      "O sistema avalia os sintomas em tempo real e determina o nível de urgência do caso.",
-    icon: <Activity size={22} />,
-  },
-  {
-    title: "Pré-notificação do Hospital",
-    description:
-      "A unidade sanitária é alertada antes da sua chegada para garantir atendimento prioritário.",
-    icon: <Hospital size={22} />,
-  },
-  {
-    title: "Orientação Imediata",
-    description:
-      "Receba instruções seguras para reduzir riscos enquanto se desloca para atendimento.",
-    icon: <MessageCircle size={22} />,
-  },
-  {
-    title: "Marcação Simplificada",
-    description:
-      "Para casos não urgentes, marque consultas via Web, WhatsApp ou USSD.",
-    icon: <CalendarCheck size={22} />,
-  },
-];
 
 export const Hero = () => {
   const router = useRouter();
-  const [current, setCurrent] = useState(0);
-
-  const nextSlide = () => setCurrent((p) => (p + 1) % slides.length);
-  const prevSlide = () =>
-    setCurrent((p) => (p === 0 ? slides.length - 1 : p - 1));
-
-  useEffect(() => {
-    const interval = setInterval(nextSlide, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleEmergencyCall = () => {
-    if (
-      navigator.userAgent.indexOf("iPhone") > -1 ||
-      navigator.userAgent.indexOf("Android") > -1
-    ) {
+    if (/iPhone|Android/i.test(navigator.userAgent)) {
       window.location.href = "tel:800";
     } else {
       alert("Ligue para 800 - Linha Verde de Emergência");
@@ -76,139 +25,129 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-white py-20">
-      <Container className="relative z-10">
-        <div className="flex flex-col-reverse items-center justify-between gap-16 md:flex-row">
-          <div className="flex-1 text-center md:text-left ">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700">
-              <ShieldCheck size={16} />
-              Plataforma de Triagem e Encaminhamento
+    <section className="relative min-h-screen w-full flex items-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-50 via-white to-white py-12 lg:py-20">
+      {/* Elemento Decorativo de Fundo */}
+      {/* <div className="absolute top-0 right-0 -z-10 h-full w-full opacity-10 pointer-events-none">
+        <svg viewBox="0 0 100 100" className="h-full w-full">
+          <defs>
+            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100" height="100" fill="url(#grid)" />
+        </svg>
+      </div> */}
+
+      <Container>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          
+          {/* Lado Esquerdo: Conteúdo e Ações Principais */}
+          <div className="lg:col-span-7 flex flex-col space-y-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-6">
+                <ShieldCheck size={16} />
+                <span>Sistema Nacional de Saúde</span>
+              </div>
+              
+              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+                ViaVerde <br />
+                <span className="text-green-600">Saúde  inteligente.</span>
+              </h1>
+              
+              <p className="mt-6 text-lg lg:text-xl text-slate-600 leading-relaxed max-w-xl">
+                O seu portal inteligente para cuidados médicos imediatos. 
+                Triagem em tempo real e conexão directa com unidades de saúde.
+              </p>
             </div>
 
-            <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl text-gray-900">
-              ViaVerde
-              <br />
-              <span className="text-gray-600">Saúde inteligente, mais rápida e humana</span>
-            </h1>
-
-            <p className="mb-8 max-w-2xl text-lg text-gray-600 md:text-xl">
-              Registe ocorrências, receba orientação imediata, marque consultas e
-              acompanhe o histórico clínico num único ponto de acesso.
-            </p>
-
-            <div className="mb-8 max-w-2xl rounded-lg border border-gray-200 bg-white p-6">
-              <div className="mb-3 flex items-center gap-3">
-                <div className="rounded-lg bg-gray-100 p-2 text-gray-700">{slides[current].icon}</div>
-                <div>
-                  <p className="font-semibold text-gray-900">{slides[current].title}</p>
-                  <p className="text-sm text-gray-600">{slides[current].description}</p>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between">
-                <div className="flex gap-2">
-                  {slides.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrent(index)}
-                      className={`h-2.5 rounded-full transition-all ${
-                        current === index ? "w-8 bg-green-600" : "w-2.5 bg-gray-300"
-                      }`}
-                      aria-label={`Ir para slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={prevSlide}
-                    className="rounded-lg border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
-                    aria-label="Slide anterior"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="rounded-lg border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
-                    aria-label="Próximo slide"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid max-w-2xl gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {/* Ações em Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
-                onClick={() => router.push("ocorrencia")}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-green-700"
+                onClick={() => router.push("/ocorrencia")}
+                className="group flex flex-col items-start p-6 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:border-green-500 transition-all text-left"
               >
-                <PhoneCall size={20} />
-                Registar Ocorrência
+                <div className="p-3 bg-green-50 text-green-600 rounded-xl group-hover:bg-green-600 group-hover:text-white transition-colors mb-4">
+                  <Activity size={24} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-lg">Registar Ocorrência</h3>
+                <p className="text-sm text-slate-500 mt-1">Triagem imediata e encaminhamento assistido.</p>
+                <div className="mt-4 flex items-center text-green-600 font-semibold text-sm group-hover:gap-2 transition-all">
+                  Iniciar agora <ChevronRight size={16} />
+                </div>
               </button>
 
               <button
                 onClick={() => router.push("/consultas")}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
+                className="group flex flex-col items-start p-6 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-500 transition-all text-left"
               >
-                <CalendarCheck size={20} />
-                Marcar Consulta
-              </button>
-
-              <button
-                onClick={() => router.push("/history")}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-6 py-3 text-base font-semibold text-gray-900 transition hover:bg-gray-50 sm:col-span-2 xl:col-span-1"
-              >
-                <ClipboardList size={20} />
-                Ver Histórico
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors mb-4">
+                  <CalendarCheck size={24} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-lg">Marcar Consulta</h3>
+                <p className="text-sm text-slate-500 mt-1">Agendamento rápido em unidades próximas.</p>
+                <div className="mt-4 flex items-center text-blue-600 font-semibold text-sm group-hover:gap-2 transition-all">
+                  Agendar <ChevronRight size={16} />
+                </div>
               </button>
             </div>
 
-            <div className="mt-8 max-w-2xl rounded-lg border border-red-200 bg-red-50 p-5">
-              <div className="mb-3 flex items-start gap-3">
-                <div className="rounded-lg bg-red-600 p-2 text-white">
-                  <AlertCircle size={22} />
+            <button
+              onClick={() => router.push("/history")}
+              className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <ClipboardList className="text-slate-500" size={20} />
+                <span className="font-medium text-slate-700">Aceder ao meu histórico clínico</span>
+              </div>
+              <ArrowRight size={18} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          {/* Lado Direito: Card de Emergência (Prioridade Alta) */}
+          <div className="lg:col-span-5">
+            <div className="relative p-1 rounded-[2.5rem] bg-gradient-to-b from-red-100 to-transparent">
+              <div className="bg-white rounded-[2.2rem] p-8 shadow-2xl shadow-red-100 border border-red-50">
+                <div className="flex items-center gap-2 text-red-600 mb-6">
+                  <div className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                  </div>
+                  <span className="font-bold uppercase tracking-widest text-xs">Urgência Crítica</span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-red-700">Emergência Médica</h3>
-                  <p className="text-sm text-red-700">
-                    Em situação crítica, contacte imediatamente a Linha Verde.
-                  </p>
+
+                <h2 className="text-3xl font-black text-slate-900 mb-2">Linha Verde 800</h2>
+                <p className="text-slate-600 mb-8 leading-relaxed">
+                  Para casos de risco de vida, ligue imediatamente. Assistência médica 24/7 disponível em todo o país.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4 p-4 bg-red-50 rounded-2xl border border-red-100">
+                    <div className="h-12 w-12 flex items-center justify-center bg-red-600 text-white rounded-full shadow-lg shadow-red-200">
+                      <PhoneCall size={24} />
+                    </div>
+                    <div>
+                      <span className="block text-2xl font-bold text-red-700">800</span>
+                      <span className="text-xs font-medium text-red-500 uppercase">Chamada Gratuita</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleEmergencyCall}
+                    className="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-red-200 transition-all active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    Ligar Agora
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-slate-100 flex items-center gap-3 text-slate-500 italic text-sm">
+                  <AlertTriangle size={16} className="text-amber-500" />
+                  Poupe vidas. Use esta linha apenas para emergências.
                 </div>
               </div>
-
-              <div className="mb-4 flex items-end justify-between rounded-lg bg-white px-4 py-3 border border-red-200">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Linha Verde</p>
-                  <p className="text-3xl font-bold tracking-wide text-red-600">800</p>
-                </div>
-                <span className="rounded-lg bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700">
-                  24h
-                </span>
-              </div>
-
-              <button
-                onClick={handleEmergencyCall}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 py-3 font-bold text-white transition hover:bg-red-700"
-              >
-                <PhoneCall size={20} />
-                Ligar para 800
-                <ArrowRight size={18} />
-              </button>
             </div>
           </div>
 
-          <div className="flex w-full max-w-xl flex-1 justify-center md:max-w-2xl md:justify-end">
-            <div className="relative w-full aspect-[3/2] overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-              <Image
-                src="/logo.png"
-                alt="Via Verde"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
         </div>
       </Container>
     </section>
