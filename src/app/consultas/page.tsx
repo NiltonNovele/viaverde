@@ -51,6 +51,7 @@ type HospitalItem = {
   hours: string;
   specialties: string[];
   doctors: Doctor[];
+  images: string[];
 };
 
 type UserPoint = {
@@ -146,6 +147,11 @@ const HOSPITALS: HospitalItem[] = [
         experience: "9 anos",
       },
     ],
+    images: [
+      "/hospital/hcm/1.jpg",
+      "/hospital/hcm/2.jpg",
+      "/hospital/hcm/3.jpg",
+    ],
   },
   {
     id: 2,
@@ -192,6 +198,11 @@ const HOSPITALS: HospitalItem[] = [
         experience: "6 anos",
       },
     ],
+    images: [
+      "/hospital/mavalane/1.jpg",
+      "/hospital/mavalane/2.jpg",
+      "/hospital/mavalane/3.jpg",
+    ],
   },
   {
     id: 3,
@@ -228,6 +239,11 @@ const HOSPITALS: HospitalItem[] = [
         nextSlot: "Amanhã • 10:00",
         experience: "9 anos",
       },
+    ],
+    images: [
+      "/hospital/hjm/1.jpeg",
+      "/hospital/hjm/2.jpg",
+      "/hospital/hjm/3.jpg",
     ],
   },
   {
@@ -275,6 +291,11 @@ const HOSPITALS: HospitalItem[] = [
         experience: "14 anos",
       },
     ],
+    images: [
+      "/hospital/sommerschield-1.jpg",
+      "/hospital/sommerschield-2.jpg",
+      "/hospital/sommerschield-3.jpg",
+    ],
   },
   {
     id: 5,
@@ -320,6 +341,11 @@ const HOSPITALS: HospitalItem[] = [
         nextSlot: "Amanhã • 11:00",
         experience: "15 anos",
       },
+    ],
+    images: [
+      "/hospital/maputocare-1.jpg",
+      "/hospital/maputocare-2.jpg",
+      "/hospital/maputocare-3.jpg",
     ],
   },
   {
@@ -367,6 +393,11 @@ const HOSPITALS: HospitalItem[] = [
         experience: "7 anos",
       },
     ],
+    images: [
+      "/hospital/matola-sul-1.jpg",
+      "/hospital/matola-sul-2.jpg",
+      "/hospital/matola-sul-3.jpg",
+    ],
   },
   {
     id: 7,
@@ -412,6 +443,11 @@ const HOSPITALS: HospitalItem[] = [
         nextSlot: "Hoje • 12:05",
         experience: "9 anos",
       },
+    ],
+    images: [
+      "/hospital/costa-sol-1.jpg",
+      "/hospital/costa-sol-2.jpg",
+      "/hospital/costa-sol-3.jpg",
     ],
   },
 ];
@@ -1008,6 +1044,21 @@ export default function ConsultasPage() {
                       </span>
                     </div>
 
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      {recommendedHospital.hospital.images.map((image, index) => (
+                        <div
+                          key={image}
+                          className="h-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100"
+                        >
+                          <img
+                            src={image}
+                            alt={`${recommendedHospital.hospital.name} ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
                     <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                       <div className="rounded-2xl bg-slate-50 p-3">
                         <p className="text-slate-500">Distância</p>
@@ -1085,6 +1136,21 @@ export default function ConsultasPage() {
                           </p>
                         </div>
                         <ChevronRight size={18} className="text-slate-400" />
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {item.hospital.images.map((image, imageIndex) => (
+                          <div
+                            key={image}
+                            className="h-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-100"
+                          >
+                            <img
+                              src={image}
+                              alt={`${item.hospital.name} ${imageIndex + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ))}
                       </div>
 
                       <div className="mt-3 flex flex-wrap gap-2 text-xs">
