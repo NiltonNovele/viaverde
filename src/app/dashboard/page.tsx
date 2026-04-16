@@ -400,6 +400,11 @@ export default function DashboardPage() {
   const [editingManchester, setEditingManchester] = useState<ManchesterLevel | undefined>();
   const [editingJustification, setEditingJustification] = useState("");
   const [editingAiConfidence, setEditingAiConfidence] = useState(0);
+  
+  // Transfer Modal State
+  const [transferCase, setTransferCase] = useState<Case | null>(null);
+  const [transferTarget, setTransferTarget] = useState(hospitals[0]);
+  const [transferReason, setTransferReason] = useState("");
 
   // ✅ NEW FUNCTION
   const handleRegisterCall = () => {
@@ -435,16 +440,45 @@ export default function DashboardPage() {
       prev.map((c) =>
         c.id === selectedCase.id
           ? {
-              ...c,
-              manchester: editingManchester,
-              medicalJustification: editingJustification,
-              aiConfidence: editingAiConfidence,
-            }
+            ...c,
+            manchester: editingManchester,
+            medicalJustification: editingJustification,
+            aiConfidence: editingAiConfidence,
+          }
           : c
       )
     );
 
+    // Mostrar feedback e fechar modal
+    alert("✓ Alterações guardadas com sucesso!");
     setSelectedCase(null);
+  };
+
+  const openTransferModal = (c: Case) => {
+    setTransferCase(c);
+    setTransferTarget(c.hospital !== hospitals[0] ? hospitals[0] : hospitals[1]);
+    setTransferReason("");
+  };
+
+  const executeTransfer = () => {
+    if (!transferCase) return;
+    if (!transferReason.trim()) {
+      alert("Por favor, indique a justificativa da transferência.");
+      return;
+    }
+
+    setCases((prev) =>
+      prev.map((c) =>
+        c.id === transferCase.id
+          ? { ...c, hospital: transferTarget, status: "Em Progresso" }
+          : c
+      )
+    );
+
+    alert(
+      `✓ Paciente ${transferCase.name} transferido para ${transferTarget}\nMotivo: ${transferReason}`
+    );
+    setTransferCase(null);
   };
 
   const handleLogin = () => {
@@ -684,8 +718,8 @@ export default function DashboardPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => deleteCase(c.id)}
-                          className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-red-100 transition font-medium"
+                          onClick={() => openTransferModal(c)}
+                          className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-blue-100 transition font-medium"
                         >
                           Transferir
                         </button>
@@ -708,13 +742,13 @@ export default function DashboardPage() {
         </div>
 
         <br></br>
-<br></br>
-<br></br>
-<br></br>
+        <br></br>
+        <br></br>
+        <br></br>
 
 
 
-         {/* ================= NEW SECTION ================= */}
+        {/* ================= NEW SECTION ================= */}
         <div className="bg-white p-6 rounded-lg shadow mb-8 border-l-4 border-green-600">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Plus size={18} /> Registo de Chamadas
@@ -841,120 +875,258 @@ export default function DashboardPage() {
                   <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                     <QrCode size={18} /> Identificador Único
                   </h3>
-                  <div className="bg-white p-4 rounded border border-blue-300 text-center">
-                    <p className="text-3xl font-mono font-bold text-blue-600 mb-2">{selectedCase.id}</p>
-                    <div className="bg-gray-100 p-4 rounded text-2xl font-bold tracking-widest text-gray-700">
-                      █ █ █ █ █ █ █ █ █
+                  <div className="bg-white p-4 rounded border border-blue-300">
+                    <div className="flex gap-4 items-start">
+                      {/* QR Code Visual */}
+                      <div className="shrink-0">
+                        <div className="w-32 h-32 bg-gray-100 p-2 rounded border-2 border-gray-300 flex items-center justify-center">
+                          <div className="text-center text-xs font-mono space-y-0.5">
+                            <div>█ █   ██   █ █</div>
+                            <div>█   █ █  █   </div>
+                            <div>█ █ █████ █ █</div>
+                            <div>  █   █  █   </div>
+                            <div>█ █   ██   █ █</div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 text-center mt-1">QR Code</p>
+                      </div>
+                      
+                      {/* ID Info */}
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-600 mb-2">Código da Ocorrência</p>
+                        <p className="text-4xl font-mono font-bold text-blue-600 mb-4">{selectedCase.id}</p>
+                        
+                        <div className="bg-blue-100 p-3 rounded-lg">
+                          <p className="text-xs text-blue-700 font-medium">Data de Registo</p>
+                          <p className="text-blue-900 font-semibold">{new Date().toLocaleDateString('pt-PT')}</p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">(Substitua com QR code real)</p>
                   </div>
-                </div>
 
-                {/* MANCHESTER SCALE */}
-                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                  <h3 className="font-semibold text-purple-900 mb-3">Escala de Manchester</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
-                      <button
-                        key={level}
-                        onClick={() => setEditingManchester(level)}
-                        className={`px-4 py-2 rounded-full font-semibold transition ${
-                          editingManchester === level
-                            ? getManchesterColor(level) + " ring-4 ring-offset-2"
-                            : getManchesterBgColor(level)
-                        }`}
-                      >
-                        {level}
-                      </button>
-                    ))}
+                  {/* MANCHESTER SCALE */}
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <h3 className="font-semibold text-purple-900 mb-3">Escala de Manchester</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setEditingManchester(level)}
+                          className={`px-4 py-2 rounded-full font-semibold transition ${editingManchester === level
+                              ? getManchesterColor(level) + " ring-4 ring-offset-2"
+                              : getManchesterBgColor(level)
+                            }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                    {editingManchester && (
+                      <p className="mt-3 text-sm text-gray-700">
+                        ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+                      </p>
+                    )}
                   </div>
-                  {editingManchester && (
-                    <p className="mt-3 text-sm text-gray-700">
-                      ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+
+                  {/* AI CONFIDENCE */}
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <h3 className="font-semibold text-orange-900 mb-3">Confiabilidade AI (0-10)</h3>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={editingAiConfidence}
+                        onChange={(e) => setEditingAiConfidence(parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-orange-300 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <div className="text-3xl font-bold text-orange-600 min-w-15 text-right">
+                        {editingAiConfidence}/10
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Ajuste o nível de confiança da análise de IA
                     </p>
-                  )}
-                </div>
+                  </div>
 
-                {/* AI CONFIDENCE */}
-                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                  <h3 className="font-semibold text-orange-900 mb-3">Confiabilidade AI (0-10)</h3>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="range"
-                      min="0"
-                      max="10"
-                      value={editingAiConfidence}
-                      onChange={(e) => setEditingAiConfidence(parseInt(e.target.value))}
-                      className="flex-1 h-2 bg-orange-300 rounded-lg appearance-none cursor-pointer"
+                  {/* MEDICAL JUSTIFICATION */}
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-green-900 mb-3">Justificativa do Médico</h3>
+                    <textarea
+                      value={editingJustification}
+                      onChange={(e) => setEditingJustification(e.target.value)}
+                      placeholder="Descreva a razão de qualquer mudança de prioridade ou observações clínicas relevantes..."
+                      className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none"
+                      rows={4}
                     />
-                    <div className="text-3xl font-bold text-orange-600 min-w-15 text-right">
-                      {editingAiConfidence}/10
+                    <p className="text-xs text-gray-600 mt-2">
+                      {editingJustification.length} caracteres
+                    </p>
+                  </div>
+
+                  {/* CLINICAL INFO */}
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500">Consciência</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Respiração</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Hemorragia</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Sintomas</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    Ajuste o nível de confiança da análise de IA
-                  </p>
-                </div>
 
-                {/* MEDICAL JUSTIFICATION */}
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-green-900 mb-3">Justificativa do Médico</h3>
-                  <textarea
-                    value={editingJustification}
-                    onChange={(e) => setEditingJustification(e.target.value)}
-                    placeholder="Descreva a razão de qualquer mudança de prioridade ou observações clínicas relevantes..."
-                    className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none"
-                    rows={4}
-                  />
-                  <p className="text-xs text-gray-600 mt-2">
-                    {editingJustification.length} caracteres
-                  </p>
-                </div>
-
-                {/* CLINICAL INFO */}
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Consciência</p>
-                      <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Respiração</p>
-                      <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Hemorragia</p>
-                      <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Sintomas</p>
-                      <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
-                    </div>
+                  {/* BUTTONS */}
+                  <div className="flex gap-3 pt-4 border-t">
+                    <button
+                      onClick={saveCaseChanges}
+                      className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                    >
+                      Guardar Alterações
+                    </button>
+                    <button
+                      onClick={() => setSelectedCase(null)}
+                      className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                    >
+                      Cancelar
+                    </button>
                   </div>
-                </div>
-
-                {/* BUTTONS */}
-                <div className="flex gap-3 pt-4 border-t">
-                  <button
-                    onClick={saveCaseChanges}
-                    className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
-                  >
-                    Guardar Alterações
-                  </button>
-                  <button
-                    onClick={() => setSelectedCase(null)}
-                    className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
-                  >
-                    Cancelar
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+            {/* ================= MODAL DE TRANSFERÊNCIA ================= */}
+            {transferCase && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+                  {/* HEADER */}
+                  <div className="bg-linear-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-start">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        Transferir Paciente
+                      </h2>
+                      <p className="text-blue-100 text-sm">
+                        {transferCase.name} {transferCase.surname} • ID: {transferCase.id}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setTransferCase(null)}
+                      className="text-white hover:bg-blue-600 p-2 rounded transition"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+
+                  <div className="p-6 space-y-6">
+                    {/* CURRENT INFO */}
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <h3 className="font-semibold text-blue-900 mb-3">Informação Atual</h3>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-blue-700">Hospital Atual</p>
+                          <p className="font-semibold text-gray-900">{transferCase.hospital}</p>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">Estado</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {getStatusIcon(transferCase.status)}
+                            <span className="font-semibold text-gray-900">{transferCase.status}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">Prioridade</p>
+                          <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(transferCase.priority)}`}>
+                            {transferCase.priority}
+                          </span>
+                        </div>
+                        {transferCase.manchester && (
+                          <div>
+                            <p className="text-blue-700">Manchester</p>
+                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold text-white ${getManchesterColor(transferCase.manchester)}`}>
+                              {transferCase.manchester}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* SELECT TARGET HOSPITAL */}
+                    <div className="space-y-3">
+                      <label className="block font-semibold text-gray-900">
+                        Selecionar Hospital Destino
+                      </label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {hospitals.map((h) => (
+                          <button
+                            key={h}
+                            onClick={() => setTransferTarget(h)}
+                            className={`p-4 text-left rounded-lg border-2 transition ${transferTarget === h
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-gray-200 bg-white hover:border-gray-300"
+                              }`}
+                          >
+                            <p className={`font-semibold ${transferTarget === h ? "text-blue-700" : "text-gray-900"}`}>
+                              {h}
+                            </p>
+                            {transferTarget === h && (
+                              <p className="text-xs text-blue-600 mt-1">✓ Selecionado</p>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* TRANSFER REASON */}
+                    <div className="space-y-3">
+                      <label className="block font-semibold text-gray-900">
+                        Justificativa da Transferência
+                      </label>
+                      <textarea
+                        value={transferReason}
+                        onChange={(e) => setTransferReason(e.target.value)}
+                        placeholder="Descreva o motivo da transferência (ex: melhor especialidade, capacidade, localização)..."
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition resize-none"
+                        rows={4}
+                      />
+                      <p className="text-xs text-gray-600">
+                        {transferReason.length} caracteres
+                      </p>
+                    </div>
+
+                    {/* BUTTONS */}
+                    <div className="flex gap-3 pt-4 border-t">
+                      <button
+                        onClick={executeTransfer}
+                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+                      >
+                        Confirmar Transferência
+                      </button>
+                      <button
+                        onClick={() => setTransferCase(null)}
+                        className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
       </Container>
       
     </div>
-  );
+);
 }
