@@ -11,10 +11,13 @@ import {
   LockOpen,
   Filter,
   Plus,
+  X,
+  QrCode,
 } from "lucide-react";
 
 type Status = "Pendente" | "Em Progresso" | "Resolvido";
 type Priority = "Alta" | "Média" | "Baixa";
+type ManchesterLevel = "Vermelho" | "Laranja" | "Amarelo" | "Verde" | "Azul";
 
 type Case = {
   id: string;
@@ -32,6 +35,9 @@ type Case = {
   hospital: string;
   status: Status;
   chronic?: boolean;
+  manchester?: ManchesterLevel;
+  medicalJustification?: string;
+  aiConfidence?: number;
 };
 
 const hospitals = [
@@ -77,6 +83,9 @@ const initialCases: Case[] = [
     priority: "Alta",
     hospital: hospitals[0],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Dor no peito com estabilidade cardiovascular inicial",
+    aiConfidence: 8,
   },
   {
     id: "VV-10002",
@@ -93,6 +102,9 @@ const initialCases: Case[] = [
     priority: "Média",
     hospital: hospitals[1],
     status: "Em Progresso",
+    manchester: "Verde",
+    medicalJustification: "Febre alta mas siniais vitais estáveis, suspeita de malária",
+    aiConfidence: 7,
   },
   {
     id: "VV-10003",
@@ -110,6 +122,9 @@ const initialCases: Case[] = [
     hospital: hospitals[0],
     status: "Pendente",
     chronic: true,
+    manchester: "Vermelho",
+    medicalJustification: "Crise asmática severa com dificuldade respiratória grave",
+    aiConfidence: 9,
   },
   {
     id: "VV-10004",
@@ -127,6 +142,9 @@ const initialCases: Case[] = [
     hospital: hospitals[2],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Verde",
+    medicalJustification: "Paciente crónico bem controlado, hiperglicemia moderada",
+    aiConfidence: 6,
   },
   {
     id: "VV-10005",
@@ -143,6 +161,9 @@ const initialCases: Case[] = [
     priority: "Baixa",
     hospital: hospitals[1],
     status: "Resolvido",
+    manchester: "Azul",
+    medicalJustification: "Sintomas leves, não requer internamento",
+    aiConfidence: 8,
   },
   {
     id: "VV-10006",
@@ -159,6 +180,9 @@ const initialCases: Case[] = [
     priority: "Alta",
     hospital: hospitals[0],
     status: "Pendente",
+    manchester: "Vermelho",
+    medicalJustification: "Trauma craniano grave com perda de consciência - EMERGÊNCIA",
+    aiConfidence: 10,
   },
   {
     id: "VV-10007",
@@ -176,6 +200,9 @@ const initialCases: Case[] = [
     hospital: hospitals[3],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Amarelo",
+    medicalJustification: "Hipertensão com dor de cabeça, requer monitorização",
+    aiConfidence: 7,
   },
   {
     id: "VV-10008",
@@ -192,6 +219,9 @@ const initialCases: Case[] = [
     priority: "Alta",
     hospital: hospitals[2],
     status: "Pendente",
+    manchester: "Laranja",
+    medicalJustification: "Dor abdominal aguda - requer cirurgia urgente",
+    aiConfidence: 8,
   },
   {
     id: "VV-10009",
@@ -208,6 +238,9 @@ const initialCases: Case[] = [
     priority: "Média",
     hospital: hospitals[1],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Febre alta com risco de malária em zona endémica",
+    aiConfidence: 7,
   },
   {
     id: "VV-10010",
@@ -224,6 +257,9 @@ const initialCases: Case[] = [
     priority: "Baixa",
     hospital: hospitals[3],
     status: "Resolvido",
+    manchester: "Azul",
+    medicalJustification: "Trauma leve sem complicações observadas",
+    aiConfidence: 6,
   },
   {
     id: "VV-10011",
@@ -241,6 +277,9 @@ const initialCases: Case[] = [
     hospital: hospitals[0],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Laranja",
+    medicalJustification: "Crise asmática em paciente crónico, requer hospitalização",
+    aiConfidence: 9,
   },
   {
     id: "VV-10012",
@@ -257,6 +296,9 @@ const initialCases: Case[] = [
     priority: "Média",
     hospital: hospitals[2],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Dor no peito - requer EKG para descartar infarto",
+    aiConfidence: 7,
   },
   {
     id: "VV-10013",
@@ -274,6 +316,9 @@ const initialCases: Case[] = [
     hospital: hospitals[1],
     status: "Resolvido",
     chronic: true,
+    manchester: "Azul",
+    medicalJustification: "Consulta de rotina para controlo de diabetes",
+    aiConfidence: 5,
   },
 ];
 
@@ -286,6 +331,40 @@ const getPriorityColor = (priority: Priority) => {
       return "bg-yellow-100 text-yellow-700 border-yellow-300";
     case "Baixa":
       return "bg-green-100 text-green-700 border-green-300";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const getManchesterColor = (level?: ManchesterLevel) => {
+  switch (level) {
+    case "Vermelho":
+      return "bg-red-600 text-white";
+    case "Laranja":
+      return "bg-orange-500 text-white";
+    case "Amarelo":
+      return "bg-yellow-400 text-gray-900";
+    case "Verde":
+      return "bg-green-500 text-white";
+    case "Azul":
+      return "bg-blue-500 text-white";
+    default:
+      return "bg-gray-300 text-gray-700";
+  }
+};
+
+const getManchesterBgColor = (level?: ManchesterLevel) => {
+  switch (level) {
+    case "Vermelho":
+      return "bg-red-100 text-red-700 border-red-300";
+    case "Laranja":
+      return "bg-orange-100 text-orange-700 border-orange-300";
+    case "Amarelo":
+      return "bg-yellow-100 text-yellow-700 border-yellow-300";
+    case "Verde":
+      return "bg-green-100 text-green-700 border-green-300";
+    case "Azul":
+      return "bg-blue-100 text-blue-700 border-blue-300";
     default:
       return "bg-gray-100 text-gray-700";
   }
@@ -317,6 +396,10 @@ export default function DashboardPage() {
 
   // ✅ NEW STATE
   const [form, setForm] = useState<Case>(emptyForm);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [editingManchester, setEditingManchester] = useState<ManchesterLevel | undefined>();
+  const [editingJustification, setEditingJustification] = useState("");
+  const [editingAiConfidence, setEditingAiConfidence] = useState(0);
 
   // ✅ NEW FUNCTION
   const handleRegisterCall = () => {
@@ -329,10 +412,39 @@ export default function DashboardPage() {
       ...form,
       id: "VV-" + Math.floor(Math.random() * 90000),
       status: "Pendente",
+      manchester: "Verde",
+      medicalJustification: "",
+      aiConfidence: 5,
     };
 
     setCases((prev) => [newCase, ...prev]);
     setForm(emptyForm);
+  };
+
+  const openCaseDetail = (c: Case) => {
+    setSelectedCase(c);
+    setEditingManchester(c.manchester);
+    setEditingJustification(c.medicalJustification || "");
+    setEditingAiConfidence(c.aiConfidence || 5);
+  };
+
+  const saveCaseChanges = () => {
+    if (!selectedCase) return;
+
+    setCases((prev) =>
+      prev.map((c) =>
+        c.id === selectedCase.id
+          ? {
+              ...c,
+              manchester: editingManchester,
+              medicalJustification: editingJustification,
+              aiConfidence: editingAiConfidence,
+            }
+          : c
+      )
+    );
+
+    setSelectedCase(null);
   };
 
   const handleLogin = () => {
@@ -557,6 +669,12 @@ export default function DashboardPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => openCaseDetail(c)}
+                          className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded text-xs hover:bg-purple-100 transition font-medium"
+                        >
+                          Detalhes
+                        </button>
                         {c.status !== "Resolvido" && (
                           <button
                             onClick={() => updateStatus(c.id, "Resolvido")}
@@ -672,7 +790,169 @@ export default function DashboardPage() {
           >
             Registar Ocorrência
           </button>
-        </div> 
+        </div>
+
+        {/* ================= MODAL DE DETALHES ================= */}
+        {selectedCase && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
+              {/* HEADER */}
+              <div className="bg-linear-to-r from-green-600 to-green-700 p-6 flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {selectedCase.name} {selectedCase.surname}
+                  </h2>
+                  <p className="text-green-100 text-sm">ID: {selectedCase.id}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedCase(null)}
+                  className="text-white hover:bg-green-600 p-2 rounded transition"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* PATIENT INFO */}
+                <div className="grid md:grid-cols-2 gap-4 border-b pb-4">
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Telefone</p>
+                    <p className="text-gray-900">{selectedCase.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Tipo</p>
+                    <p className="text-gray-900">{selectedCase.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Hospital</p>
+                    <p className="text-gray-900">{selectedCase.hospital}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Estado</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {getStatusIcon(selectedCase.status)}
+                      <span className="text-gray-900">{selectedCase.status}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* QR CODE */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <QrCode size={18} /> Identificador Único
+                  </h3>
+                  <div className="bg-white p-4 rounded border border-blue-300 text-center">
+                    <p className="text-3xl font-mono font-bold text-blue-600 mb-2">{selectedCase.id}</p>
+                    <div className="bg-gray-100 p-4 rounded text-2xl font-bold tracking-widest text-gray-700">
+                      █ █ █ █ █ █ █ █ █
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">(Substitua com QR code real)</p>
+                  </div>
+                </div>
+
+                {/* MANCHESTER SCALE */}
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h3 className="font-semibold text-purple-900 mb-3">Escala de Manchester</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setEditingManchester(level)}
+                        className={`px-4 py-2 rounded-full font-semibold transition ${
+                          editingManchester === level
+                            ? getManchesterColor(level) + " ring-4 ring-offset-2"
+                            : getManchesterBgColor(level)
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                  {editingManchester && (
+                    <p className="mt-3 text-sm text-gray-700">
+                      ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* AI CONFIDENCE */}
+                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                  <h3 className="font-semibold text-orange-900 mb-3">Confiabilidade AI (0-10)</h3>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10"
+                      value={editingAiConfidence}
+                      onChange={(e) => setEditingAiConfidence(parseInt(e.target.value))}
+                      className="flex-1 h-2 bg-orange-300 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <div className="text-3xl font-bold text-orange-600 min-w-15 text-right">
+                      {editingAiConfidence}/10
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Ajuste o nível de confiança da análise de IA
+                  </p>
+                </div>
+
+                {/* MEDICAL JUSTIFICATION */}
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 className="font-semibold text-green-900 mb-3">Justificativa do Médico</h3>
+                  <textarea
+                    value={editingJustification}
+                    onChange={(e) => setEditingJustification(e.target.value)}
+                    placeholder="Descreva a razão de qualquer mudança de prioridade ou observações clínicas relevantes..."
+                    className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none"
+                    rows={4}
+                  />
+                  <p className="text-xs text-gray-600 mt-2">
+                    {editingJustification.length} caracteres
+                  </p>
+                </div>
+
+                {/* CLINICAL INFO */}
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">Consciência</p>
+                      <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Respiração</p>
+                      <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Hemorragia</p>
+                      <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Sintomas</p>
+                      <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BUTTONS */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <button
+                    onClick={saveCaseChanges}
+                    className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                  >
+                    Guardar Alterações
+                  </button>
+                  <button
+                    onClick={() => setSelectedCase(null)}
+                    className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Container>
       
     </div>
