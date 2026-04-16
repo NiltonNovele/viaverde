@@ -39,6 +39,7 @@ type ActorView = "utente" | "linha_verde" | "triagem";
 type HospitalItem = {
   id: number;
   name: string;
+  district: string;
   lat: number;
   lng: number;
   distanceKm: number;
@@ -80,6 +81,7 @@ const HOSPITALS: HospitalItem[] = [
   {
     id: 1,
     name: "Hospital Central de Maputo",
+    district: "Maputo",
     lat: -25.9653,
     lng: 32.5892,
     distanceKm: 2.1,
@@ -111,6 +113,7 @@ const HOSPITALS: HospitalItem[] = [
   {
     id: 2,
     name: "Hospital Geral de Mavalane",
+    district: "Mavalane",
     lat: -25.9314,
     lng: 32.5864,
     distanceKm: 3.4,
@@ -141,6 +144,7 @@ const HOSPITALS: HospitalItem[] = [
   {
     id: 3,
     name: "Hospital José Macamo",
+    district: "Maputo",
     lat: -25.9551,
     lng: 32.5734,
     distanceKm: 4.6,
@@ -169,6 +173,7 @@ const HOSPITALS: HospitalItem[] = [
   {
     id: 4,
     name: "Clínica Sommerschield",
+    district: "Sommerschield",
     lat: -25.9589,
     lng: 32.6031,
     distanceKm: 2.8,
