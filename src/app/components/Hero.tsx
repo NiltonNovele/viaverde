@@ -39,7 +39,7 @@ export const Hero = () => {
       </div> */}
 
       <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start overflow-hidden">
           
           {/* Lado Esquerdo: Conteúdo e Ações Principais */}
           <div className="lg:col-span-7 flex flex-col space-y-8">
@@ -49,9 +49,9 @@ export const Hero = () => {
                 <span>Sistema Nacional de Saúde</span>
               </div>
               
-              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+              <h1 className="text-3xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
                 ViaVerde <br />
-                <span className="text-green-600">Saúde  inteligente.</span>
+                <span className="text-green-600">Pré-triagem e Encaminhamento.</span>
               </h1>
               
               <p className="mt-6 text-lg lg:text-xl text-slate-600 leading-relaxed max-w-xl">

@@ -1083,7 +1083,7 @@ export default function DashboardPage() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto animate-fadeIn">
         <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto my-8">
           {/* HEADER */}
-          <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 sticky top-0">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 sticky top-0 z-20">
             <div className="flex justify-between items-start">
               <div className="text-white">
                 <h2 className="text-2xl font-bold">
@@ -1177,7 +1177,7 @@ export default function DashboardPage() {
               {editingManchester && (
                 <p className="mt-3 text-sm text-gray-700 flex items-center gap-2">
                   <ArrowRight className="w-4 h-4 text-green-600" />
-                  ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+                  ✓ Selecionado: <span className="font-semibold z-0">{editingManchester}</span>
                 </p>
               )}
             </div>
