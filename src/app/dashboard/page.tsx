@@ -10,9 +10,9 @@ import {
   Lock,
   LockOpen,
   Filter,
-  Plus,
   X,
   QrCode,
+  Phone,
 } from "lucide-react";
 
 type Status = "Pendente" | "Em Progresso" | "Resolvido";
@@ -21,6 +21,22 @@ type ManchesterLevel = "Vermelho" | "Laranja" | "Amarelo" | "Verde" | "Azul";
 type HospitalSpecialty = {
   name: string;
   available: boolean;
+};
+
+type Call = {
+  id: string;
+  time: string; // HH:MM
+  date: string; // DD/MM/YYYY
+  attended: boolean;
+  agent: string; // Nome do agente que atendeu
+  clientName: string;
+  clientSurname: string;
+  clientPhone: string;
+  description: string; // Descrição da ocorrência
+  symptoms?: string;
+  recommendedHospital: string;
+  manchester: ManchesterLevel;
+  notes?: string;
 };
 
 type Case = {
@@ -80,24 +96,110 @@ const hospitals = [
   "Hospital Provincial da Matola",
 ];
 
-const emptyForm: Case = {
-  id: "",
-  name: "",
-  surname: "",
-  phone: "",
-  type: "",
-  consciousness: "",
-  breathing: "",
-  bleeding: "",
-  symptoms: "",
-  description: "",
-  notes: "",
-  manchester: "Verde",
-  hospital: hospitals[0],
-  status: "Pendente",
-};
-
 const MOCK_EMAIL = "nilton.novele@misau.gov.mz";
+
+const initialCalls: Call[] = [
+  {
+    id: "LV-001",
+    time: "08:15",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Nilton Novele",
+    clientName: "João",
+    clientSurname: "Silva",
+    clientPhone: "+258 84 123 4567",
+    description: "Dor no peito, dificuldade em respirar. Paciente relata ser cardíaco há 5 anos.",
+    symptoms: "Dor torácica, dispneia",
+    recommendedHospital: "Hospital Central de Maputo",
+    manchester: "Vermelho",
+    notes: "Paciente em estado de ansiedade. Encaminhar para Cardiologia urgente.",
+  },
+  {
+    id: "LV-002",
+    time: "09:45",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Maria Santos",
+    clientName: "Ana",
+    clientSurname: "Pereira",
+    clientPhone: "+258 84 234 5678",
+    description: "Criança com febre alta (39.5°C) há 2 dias. Vômitos constantes.",
+    symptoms: "Febre, vômitos, desidratação",
+    recommendedHospital: "Hospital Geral de Mavalane",
+    manchester: "Laranja",
+  },
+  {
+    id: "LV-003",
+    time: "10:30",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Nilton Novele",
+    clientName: "Carlos",
+    clientSurname: "Mandlate",
+    clientPhone: "+258 84 345 6789",
+    description: "Traumatismo craniano após queda. Paciente com pequeno sangramento no couro cabeludo.",
+    symptoms: "Dor de cabeça, sangramento, tonturas",
+    recommendedHospital: "Hospital José Macamo",
+    manchester: "Amarelo",
+  },
+  {
+    id: "LV-004",
+    time: "11:20",
+    date: "16/04/2026",
+    attended: false,
+    agent: "-",
+    clientName: "unknown",
+    clientSurname: "unknown",
+    clientPhone: "+258 84 456 7890",
+    description: "Chamada não respondida. Possível número incorreto.",
+    recommendedHospital: "Indeterminado",
+    manchester: "Verde",
+  },
+  {
+    id: "LV-005",
+    time: "13:15",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Maria Santos",
+    clientName: "Fatima",
+    clientSurname: "Ahmed",
+    clientPhone: "+258 84 567 8901",
+    description: "Grávida com 8 meses de gestação. Dor abdominal moderada e sangramento vaginal leve.",
+    symptoms: "Dor abdominal, sangramento vaginal",
+    recommendedHospital: "Hospital Geral de Mavalane",
+    manchester: "Laranja",
+    notes: "Encaminhar para avaliação obstétrica urgente. Possível complicação de gravidez.",
+  },
+  {
+    id: "LV-006",
+    time: "14:45",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Nilton Novele",
+    clientName: "Miguel",
+    clientSurname: "Novele",
+    clientPhone: "+258 84 678 9012",
+    description: "Tosse persistente há 1 semana com expectoração. Ligeira febre (37.5°C).",
+    symptoms: "Tosse, expectoração, febre ligeira",
+    recommendedHospital: "Hospital Provincial da Matola",
+    manchester: "Amarelo",
+  },
+  {
+    id: "LV-007",
+    time: "15:30",
+    date: "16/04/2026",
+    attended: true,
+    agent: "Maria Santos",
+    clientName: "Leonor",
+    clientSurname: "Costa",
+    clientPhone: "+258 84 789 0123",
+    description: "Reacção alérgica após ingestão de amendoim. Inchaço localizado nos lábios.",
+    symptoms: "Prurido, inchaço labial, dificuldade em engolir",
+    recommendedHospital: "Hospital Central de Maputo",
+    manchester: "Laranja",
+    notes: "Paciente tem histórico de anafilaxia. Considerar adrenalina.",
+  },
+];
 const MOCK_PASS = "2026";
 
 const initialCases: Case[] = [
@@ -467,13 +569,13 @@ export default function DashboardPage() {
   const [password, setPassword] = useState("");
 
   const [cases, setCases] = useState<Case[]>(initialCases);
+  const [calls] = useState<Call[]>(initialCalls);
   const [selectedHospital, setSelectedHospital] = useState(hospitals[0]);
   const [filterByManchester, setFilterByManchester] =
     useState<ManchesterLevel | "Todos">("Todos");
   const [lock, setLock] = useState(true);
 
   // ✅ NEW STATE
-  const [form, setForm] = useState<Case>(emptyForm);
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [editingManchester, setEditingManchester] = useState<ManchesterLevel | undefined>();
   const [editingJustification, setEditingJustification] = useState("");
@@ -484,26 +586,6 @@ export default function DashboardPage() {
   const [transferTarget, setTransferTarget] = useState(hospitals[0]);
   const [transferReason, setTransferReason] = useState("");
 
-  // ✅ NEW FUNCTION
-  const handleRegisterCall = () => {
-    if (!form.name || !form.phone) {
-      alert("Preencha pelo menos nome e telefone.");
-      return;
-    }
-
-    const newCase: Case = {
-      ...form,
-      id: "VV-" + Math.floor(Math.random() * 90000),
-      status: "Pendente",
-      manchester: form.manchester,
-      medicalJustification: "",
-      aiConfidence: 5,
-      portfolioHospital: hospitalPortfolio[form.hospital],
-    };
-
-    setCases((prev) => [newCase, ...prev]);
-    setForm(emptyForm);
-  };
 
   const openCaseDetail = (c: Case) => {
     setSelectedCase(c);
@@ -836,84 +918,66 @@ export default function DashboardPage() {
 
 
 
-        {/* ================= NEW SECTION ================= */}
-        <div className="bg-white p-6 rounded-lg shadow mb-8 border-l-4 border-green-600">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Plus size={18} /> Registo de Chamadas
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <input placeholder="Nome" className="border p-2 rounded"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-            <input placeholder="Apelido" className="border p-2 rounded"
-              value={form.surname}
-              onChange={(e) => setForm({ ...form, surname: e.target.value })}
-            />
-            <input placeholder="Telefone" className="border p-2 rounded"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            />
-
-            <input placeholder="Tipo" className="border p-2 rounded"
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-            />
-            <input placeholder="Consciência" className="border p-2 rounded"
-              value={form.consciousness}
-              onChange={(e) => setForm({ ...form, consciousness: e.target.value })}
-            />
-            <input placeholder="Respiração" className="border p-2 rounded"
-              value={form.breathing}
-              onChange={(e) => setForm({ ...form, breathing: e.target.value })}
-            />
-
-            <input placeholder="Hemorragia" className="border p-2 rounded"
-              value={form.bleeding}
-              onChange={(e) => setForm({ ...form, bleeding: e.target.value })}
-            />
-            <input placeholder="Sintomas" className="border p-2 rounded"
-              value={form.symptoms}
-              onChange={(e) => setForm({ ...form, symptoms: e.target.value })}
-            />
-            <input placeholder="Descrição" className="border p-2 rounded"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-            />
-
-            <input placeholder="Notas" className="border p-2 rounded"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
-
-            <select className="border p-2 rounded"
-              value={form.manchester}
-              onChange={(e) => setForm({ ...form, manchester: e.target.value as ManchesterLevel })}
-            >
-              <option value="Vermelho">🔴 Vermelho (Emergência)</option>
-              <option value="Laranja">🟠 Laranja (Muito Urgente)</option>
-              <option value="Amarelo">🟡 Amarelo (Urgente)</option>
-              <option value="Verde">🟢 Verde (Pouco Urgente)</option>
-              <option value="Azul">🔵 Azul (Não Urgente)</option>
-            </select>
-
-            <select className="border p-2 rounded"
-              value={form.hospital}
-              onChange={(e) => setForm({ ...form, hospital: e.target.value })}
-            >
-              {hospitals.map((h) => (
-                <option key={h}>{h}</option>
-              ))}
-            </select>
+        {/* ================= CHAMADAS - LINHA VERDE ================= */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-linear-to-r from-green-600 to-green-700 p-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Phone size={24} /> Registo de Chamadas - Linha Verde
+            </h2>
+            <p className="text-green-100 text-sm mt-1">Últimas chamadas recebidas via linha verde</p>
           </div>
 
-          <button
-            onClick={handleRegisterCall}
-            className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-          >
-            Registar Ocorrência
-          </button>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Hora</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Agente</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utente</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Telefone</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Descrição</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Hospital Recomendado</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Gravidade</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {calls.map((call) => (
+                  <tr key={call.id} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-4">
+                      <span className="font-mono text-xs font-semibold text-green-600">{call.id}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{call.time}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                        call.attended 
+                          ? 'bg-green-100 text-green-800 border border-green-300' 
+                          : 'bg-red-100 text-red-800 border border-red-300'
+                      }`}>
+                        {call.attended ? '✓ Atendida' : '✗ Não Atendida'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 font-medium">{call.agent}</td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-semibold text-gray-900">{call.clientName} {call.clientSurname}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{call.clientPhone}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">{call.description}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 font-medium">{call.recommendedHospital}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(call.manchester)}`}>
+                        {call.manchester}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">{getManchesterPriority(call.manchester)}</p>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* ================= MODAL DE DETALHES ================= */}
