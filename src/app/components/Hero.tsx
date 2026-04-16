@@ -79,7 +79,7 @@ export const Hero = () => {
     <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-white py-20">
       <Container className="relative z-10">
         <div className="flex flex-col-reverse items-center justify-between gap-16 md:flex-row">
-          <div className="flex-1 text-center md:text-left md: flex">
+          <div className="flex-1 text-center md:text-left ">
             <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700">
               <ShieldCheck size={16} />
               Plataforma de Triagem e Encaminhamento
