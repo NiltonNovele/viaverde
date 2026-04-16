@@ -231,10 +231,10 @@ export default function ViaVerdeHistory() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-white p-6 flex items-center justify-center">
       {/* LOGIN */}
       {step === "login" && (
-        <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md space-y-4">
+        <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-200 w-full max-w-md space-y-4">
           <h2 className="text-2xl font-bold text-green-700 text-center">
             Histórico ViaVerde
           </h2>

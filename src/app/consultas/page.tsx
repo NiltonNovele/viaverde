@@ -795,7 +795,7 @@ export default function ConsultasPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 md:p-6">
+    <div className="min-h-screen bg-white p-3 sm:p-4 md:p-6">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_20px_60px_rgba(16,24,40,0.08)] backdrop-blur">
           <p className="mb-1 text-sm font-semibold uppercase tracking-[0.18em] text-green-600">

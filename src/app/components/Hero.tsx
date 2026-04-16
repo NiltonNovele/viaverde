@@ -76,25 +76,19 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-blue-50 py-20">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full bg-green-200 opacity-30 blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-blue-200 opacity-20 blur-3xl" />
-      </div>
-
+    <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-white py-20">
       <Container className="relative z-10">
         <div className="flex flex-col-reverse items-center justify-between gap-16 md:flex-row">
-          <div className="flex-1 text-center md:text-left">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-200 bg-white/80 px-4 py-2 text-sm font-semibold text-green-700 shadow-sm backdrop-blur-sm">
+          <div className="flex-1 text-center md:text-left md: flex">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700">
               <ShieldCheck size={16} />
               Plataforma de Triagem e Encaminhamento
             </div>
 
-            <h1 className="mb-6 text-4xl font-extrabold leading-tight md:text-6xl">
-              <span className="text-green-600">Via</span>{" "}
-              <span className="text-blue-600">Verde</span>
+            <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl text-gray-900">
+              ViaVerde
               <br />
-              <span className="text-gray-800">Saúde inteligente, mais rápida e humana</span>
+              <span className="text-gray-600">Saúde inteligente, mais rápida e humana</span>
             </h1>
 
             <p className="mb-8 max-w-2xl text-lg text-gray-600 md:text-xl">
@@ -102,11 +96,11 @@ export const Hero = () => {
               acompanhe o histórico clínico num único ponto de acesso.
             </p>
 
-            <div className="mb-8 max-w-2xl rounded-3xl border border-white/60 bg-white/75 p-6 shadow-xl backdrop-blur-md">
-              <div className="mb-3 flex items-center gap-3 text-green-600">
-                <div className="rounded-xl bg-green-50 p-2">{slides[current].icon}</div>
+            <div className="mb-8 max-w-2xl rounded-lg border border-gray-200 bg-white p-6">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="rounded-lg bg-gray-100 p-2 text-gray-700">{slides[current].icon}</div>
                 <div>
-                  <p className="font-semibold">{slides[current].title}</p>
+                  <p className="font-semibold text-gray-900">{slides[current].title}</p>
                   <p className="text-sm text-gray-600">{slides[current].description}</p>
                 </div>
               </div>
@@ -128,14 +122,14 @@ export const Hero = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={prevSlide}
-                    className="rounded-full border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-lg border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
                     aria-label="Slide anterior"
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <button
                     onClick={nextSlide}
-                    className="rounded-full border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-lg border border-gray-200 bg-white p-2 text-gray-700 transition hover:bg-gray-50"
                     aria-label="Próximo slide"
                   >
                     <ChevronRight size={18} />
@@ -146,8 +140,8 @@ export const Hero = () => {
 
             <div className="grid max-w-2xl gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <button
-                onClick={() => router.push("#")}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-green-600 px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-xl"
+                onClick={() => router.push("ocorrencia")}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-green-700"
               >
                 <PhoneCall size={20} />
                 Registar Ocorrência
@@ -155,7 +149,7 @@ export const Hero = () => {
 
               <button
                 onClick={() => router.push("/consultas")}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-600 px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
               >
                 <CalendarCheck size={20} />
                 Marcar Consulta
@@ -163,16 +157,16 @@ export const Hero = () => {
 
               <button
                 onClick={() => router.push("/history")}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-800 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-xl sm:col-span-2 xl:col-span-1"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-6 py-3 text-base font-semibold text-gray-900 transition hover:bg-gray-50 sm:col-span-2 xl:col-span-1"
               >
                 <ClipboardList size={20} />
                 Ver Histórico
               </button>
             </div>
 
-            <div className="mt-8 max-w-2xl rounded-3xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-red-100 p-5 shadow-lg">
+            <div className="mt-8 max-w-2xl rounded-lg border border-red-200 bg-red-50 p-5">
               <div className="mb-3 flex items-start gap-3">
-                <div className="rounded-2xl bg-red-600 p-2 text-white">
+                <div className="rounded-lg bg-red-600 p-2 text-white">
                   <AlertCircle size={22} />
                 </div>
                 <div>
@@ -183,19 +177,19 @@ export const Hero = () => {
                 </div>
               </div>
 
-              <div className="mb-4 flex items-end justify-between rounded-2xl bg-white/80 px-4 py-3">
+              <div className="mb-4 flex items-end justify-between rounded-lg bg-white px-4 py-3 border border-red-200">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">Linha Verde</p>
-                  <p className="text-3xl font-black tracking-wide text-red-600">800</p>
+                  <p className="text-sm font-medium text-gray-500">Linha Verde</p>
+                  <p className="text-3xl font-bold tracking-wide text-red-600">800</p>
                 </div>
-                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700">
+                <span className="rounded-lg bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700">
                   24h
                 </span>
               </div>
 
               <button
                 onClick={handleEmergencyCall}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 py-4 font-bold text-white transition-colors duration-200 hover:bg-red-700"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 py-3 font-bold text-white transition hover:bg-red-700"
               >
                 <PhoneCall size={20} />
                 Ligar para 800
@@ -205,7 +199,7 @@ export const Hero = () => {
           </div>
 
           <div className="flex w-full max-w-xl flex-1 justify-center md:max-w-2xl md:justify-end">
-            <div className="relative w-full aspect-[3/2] overflow-hidden rounded-[2rem] border border-white/60 bg-white/50 shadow-2xl backdrop-blur-sm">
+            <div className="relative w-full aspect-[3/2] overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
               <Image
                 src="/logo.png"
                 alt="Via Verde"
@@ -213,15 +207,6 @@ export const Hero = () => {
                 className="object-cover"
                 priority
               />
-
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                <div className="rounded-2xl bg-white/15 p-4 backdrop-blur-md">
-                  <p className="text-sm font-medium text-white/90">
-                    Atendimento mais rápido, melhor encaminhamento e acesso facilitado
-                    ao cuidado de saúde.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

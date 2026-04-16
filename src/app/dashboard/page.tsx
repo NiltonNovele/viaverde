@@ -3,16 +3,9 @@
 import { useState } from "react";
 import Container from "../components/Container";
 import {
-  AlertCircle,
-  CheckCircle2,
   Clock,
   LogOut,
-  Lock,
-  LockOpen,
-  Filter,
   X,
-  QrCode,
-  Phone,
 } from "lucide-react";
 
 type Status = "Pendente" | "Em Progresso" | "Resolvido";
@@ -550,19 +543,6 @@ const getManchesterBgColor = (level?: ManchesterLevel) => {
   }
 };
 
-const getStatusIcon = (status: Status) => {
-  switch (status) {
-    case "Pendente":
-      return <AlertCircle className="text-orange-500" size={18} />;
-    case "Em Progresso":
-      return <Clock className="text-blue-500" size={18} />;
-    case "Resolvido":
-      return <CheckCircle2 className="text-green-500" size={18} />;
-    default:
-      return null;
-  }
-};
-
 export default function DashboardPage() {
   const [logged, setLogged] = useState(false);
   const [email, setEmail] = useState("");
@@ -723,179 +703,169 @@ export default function DashboardPage() {
 
   // ============ DASHBOARD ============
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <Container>
-        {/* HEADER */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 border-t-4 border-green-600">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Bem-vindo, Nilton Novele
+    <>
+      <div className="min-h-screen bg-white">
+      {/* HEADER MINIMALISTA */}
+      <div className="border-b border-gray-200 bg-white sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex justify-between items-center">
+            <div className="text-center flex-1">
+              <h1 className="text-2xl font-semibold text-gray-900">
+                ViaVerde - Painel de Gestão Clínica
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Hospital Central de Maputo • Nº de Profissional: HC-77821
+                Hospital Central de Maputo
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setLock(!lock)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded border border-gray-200 hover:bg-gray-200 transition"
+              >
+                {lock ? "Este Hospital" : "Todos"}
+              </button>
+              <button
+                onClick={() => setLogged(false)}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded border border-gray-200 hover:bg-gray-200 transition"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Container>
+        <div className="py-8">
+          {/* FILTROS */}
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
+            {lock && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                  Unidade Sanitária
+                </label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-600 transition"
+                  value={selectedHospital}
+                  onChange={(e) => setSelectedHospital(e.target.value)}
+                >
+                  {hospitals.map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                Filtrar por Urgência
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-600 transition"
+                value={filterByManchester}
+                onChange={(e) => setFilterByManchester(e.target.value as ManchesterLevel | "Todos")}
+              >
+                <option value="Todos">Todas</option>
+                <option value="Vermelho">🔴 Emergência (Imediato)</option>
+                <option value="Laranja">🟠 Muito Urgente (10 min)</option>
+                <option value="Amarelo">🟡 Urgente (1H)</option>
+                <option value="Verde">🟢 Pouco Urgente (2H)</option>
+                <option value="Azul">🔵 Não Urgente (4H)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* STATS - DESIGN LIMPO */}
+          <div className="grid md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total de Casos</p>
+              <p className="text-4xl font-bold text-gray-900 mt-2">{filteredCases.length}</p>
+            </div>
+
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Emergências</p>
+              <p className="text-4xl font-bold text-red-600 mt-2">
+                {filteredCases.filter((c) => c.manchester === "Vermelho").length}
               </p>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setLock(!lock)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 hover:bg-blue-100 transition font-medium"
-              >
-                {lock ? <Lock size={18} /> : <LockOpen size={18} />}
-                {lock ? "Este Hospital" : "Todos"}
-              </button>
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Em Progresso</p>
+              <p className="text-4xl font-bold text-blue-600 mt-2">
+                {filteredCases.filter((c) => c.status === "Em Progresso").length}
+              </p>
+            </div>
 
-              <button
-                onClick={() => setLogged(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg border border-red-200 hover:bg-red-100 transition font-medium"
-              >
-                <LogOut size={18} /> Sair
-              </button>
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Resolvidos</p>
+              <p className="text-4xl font-bold text-green-600 mt-2">
+                {filteredCases.filter((c) => c.status === "Resolvido").length}
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* FILTERS */}
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          {lock && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Unidade Sanitária
-              </label>
-              <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition"
-                value={selectedHospital}
-                onChange={(e) => setSelectedHospital(e.target.value)}
-              >
-                {hospitals.map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Filter size={16} className="inline mr-2" /> Urgência (Manchester)
-            </label>
-            <select
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition"
-              value={filterByManchester}
-              onChange={(e) => setFilterByManchester(e.target.value as ManchesterLevel | "Todos")}
-            >
-              <option value="Todos">Todas as Urgências</option>
-              <option value="Vermelho">🔴 Vermelho (Emergência - Imediato)</option>
-              <option value="Laranja">🟠 Laranja (Muito Urgente - 10 min)</option>
-              <option value="Amarelo">🟡 Amarelo (Urgente - 1H)</option>
-              <option value="Verde">🟢 Verde (Pouco Urgente - 2H)</option>
-              <option value="Azul">🔵 Azul (Não Urgente - 4H)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* STATS */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
-            <p className="text-gray-600 text-sm font-medium">Total de Casos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{filteredCases.length}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-600">
-            <p className="text-gray-600 text-sm font-medium">🔴 Emergências</p>
-            <p className="text-3xl font-bold text-red-600 mt-2">
-              {filteredCases.filter((c) => c.manchester === "Vermelho").length}
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
-            <p className="text-gray-600 text-sm font-medium">Em Progresso</p>
-            <p className="text-3xl font-bold text-blue-600 mt-2">
-              {filteredCases.filter((c) => c.status === "Em Progresso").length}
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
-            <p className="text-gray-600 text-sm font-medium">Resolvidos</p>
-            <p className="text-3xl font-bold text-green-600 mt-2">
-              {filteredCases.filter((c) => c.status === "Resolvido").length}
-            </p>
-          </div>
-        </div>
-
-        {/* CASES TABLE */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          {/* TABELA DE CASOS */}
+          <div className="bg-white rounded border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-white border-b-2 border-gray-300">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utente</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Sintomas</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Urgência (Manchester)</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tempo Espera</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Estado</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Ações</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">ID</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Utente</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Tipo</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Sintomas</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Urgência</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Tempo Espera</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Estado</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredCases.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4">
-                      <span className="font-mono text-xs font-semibold text-green-600">{c.id}</span>
-                      {c.chronic && <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Crónico</span>}
-                    </td>
+                  <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-mono font-semibold text-green-700">{c.id}</td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-semibold text-gray-900">{c.name} {c.surname}</p>
+                        <p className="font-medium text-gray-900">{c.name} {c.surname}</p>
                         <p className="text-xs text-gray-500">{c.phone}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{c.type}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{c.symptoms}</td>
+                    <td className="px-6 py-4 text-gray-700">{c.type}</td>
+                    <td className="px-6 py-4 text-gray-700">{c.symptoms}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(c.manchester)}`}>
+                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold border ${getPriorityColor(c.manchester)}`}>
                         {c.manchester}
                       </span>
-                      <p className="text-xs text-gray-500 mt-1">{getManchesterPriority(c.manchester)}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {formatWaitTime(getManchesterWaitTime(c.manchester))}
-                      </div>
+                    <td className="px-6 py-4 text-gray-900 font-medium">
+                      {formatWaitTime(getManchesterWaitTime(c.manchester))}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(c.status)}
-                        <span className="text-sm font-medium text-gray-700">{c.status}</span>
-                      </div>
-                    </td>
+                    <td className="px-6 py-4 text-gray-700">{c.status}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button
                           onClick={() => openCaseDetail(c)}
-                          className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded text-xs hover:bg-purple-100 transition font-medium"
+                          className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded border border-gray-300 hover:bg-gray-200 transition"
                         >
                           Detalhes
                         </button>
                         {c.status !== "Resolvido" && (
                           <button
                             onClick={() => updateStatus(c.id, "Resolvido")}
-                            className="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-xs hover:bg-green-100 transition font-medium"
+                            className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded border border-gray-300 hover:bg-gray-200 transition"
                           >
                             Resolver
                           </button>
                         )}
                         <button
                           onClick={() => openTransferModal(c)}
-                          className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-blue-100 transition font-medium"
+                          className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded border border-gray-300 hover:bg-gray-200 transition"
                         >
                           Transferir
                         </button>
                         <button
                           onClick={() => deleteCase(c.id)}
-                          className="px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded text-xs hover:bg-red-100 transition font-medium"
+                          className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded border border-gray-300 hover:bg-red-100 hover:text-red-700 transition"
                         >
                           Eliminar
                         </button>
@@ -906,72 +876,57 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
-          
-         
-
         </div>
 
-        <br></br>
-        <br></br>
-        <br></br>
-        <br></br>
-
-
-
         {/* ================= CHAMADAS - LINHA VERDE ================= */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="bg-linear-to-r from-green-600 to-green-700 p-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Phone size={24} /> Registo de Chamadas - Linha Verde
+        <div className="mt-8 bg-white rounded border border-gray-200 overflow-hidden">
+          <div className="bg-white border-b border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Registo de Chamadas - Linha Verde
             </h2>
-            <p className="text-green-100 text-sm mt-1">Últimas chamadas recebidas via linha verde</p>
+            <p className="text-sm text-gray-500 mt-1">Últimas chamadas recebidas</p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-white border-b-2 border-gray-300">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Hora</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Agente</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utente</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Telefone</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Descrição</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Hospital Recomendado</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Gravidade</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">ID</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Hora</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Status</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Agente</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Utente</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Telefone</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Descrição</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Hospital</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">Gravidade</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {calls.map((call) => (
-                  <tr key={call.id} className="hover:bg-gray-50 transition">
+                  <tr key={call.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-mono font-semibold text-green-700">{call.id}</td>
+                    <td className="px-6 py-4 text-gray-700">{call.time}</td>
                     <td className="px-6 py-4">
-                      <span className="font-mono text-xs font-semibold text-green-600">{call.id}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{call.time}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold border ${
                         call.attended 
-                          ? 'bg-green-100 text-green-800 border border-green-300' 
-                          : 'bg-red-100 text-red-800 border border-red-300'
+                          ? 'bg-green-100 text-green-800 border-green-300' 
+                          : 'bg-red-100 text-red-800 border-red-300'
                       }`}>
                         {call.attended ? '✓ Atendida' : '✗ Não Atendida'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 font-medium">{call.agent}</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">{call.agent}</td>
                     <td className="px-6 py-4">
-                      <div>
-                        <p className="font-semibold text-gray-900">{call.clientName} {call.clientSurname}</p>
-                      </div>
+                      <p className="font-medium text-gray-900">{call.clientName} {call.clientSurname}</p>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{call.clientPhone}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">{call.description}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 font-medium">{call.recommendedHospital}</td>
+                    <td className="px-6 py-4 text-gray-700">{call.clientPhone}</td>
+                    <td className="px-6 py-4 text-gray-700 max-w-xs">{call.description}</td>
+                    <td className="px-6 py-4 text-gray-700">{call.recommendedHospital}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(call.manchester)}`}>
+                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold border ${getPriorityColor(call.manchester)}`}>
                         {call.manchester}
                       </span>
-                      <p className="text-xs text-gray-500 mt-1">{getManchesterPriority(call.manchester)}</p>
                     </td>
                   </tr>
                 ))}
@@ -979,329 +934,281 @@ export default function DashboardPage() {
             </table>
           </div>
         </div>
+        </div>
+      </Container>
+    </div>
 
-        {/* ================= MODAL DE DETALHES ================= */}
-        {selectedCase && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
-              {/* HEADER */}
-              <div className="bg-linear-to-r from-green-600 to-green-700 p-6 flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    {selectedCase.name} {selectedCase.surname}
-                  </h2>
-                  <p className="text-green-100 text-sm">ID: {selectedCase.id}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedCase(null)}
-                  className="text-white hover:bg-green-600 p-2 rounded transition"
-                >
-                  <X size={24} />
-                </button>
+    {/* ================= MODAL DE DETALHES ================= */}
+    {selectedCase && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
+          {/* HEADER */}
+          <div className="border-b border-gray-200 p-6 flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900">
+                {selectedCase.name} {selectedCase.surname}
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">ID: {selectedCase.id}</p>
+            </div>
+            <button
+              onClick={() => setSelectedCase(null)}
+              className="text-gray-500 hover:text-gray-700 transition"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* PATIENT INFO */}
+            <div className="grid md:grid-cols-2 gap-4 border-b pb-4">
+              <div>
+                <p className="text-sm text-gray-500 font-semibold">Telefone</p>
+                <p className="text-gray-900">{selectedCase.phone}</p>
               </div>
+              <div>
+                <p className="text-sm text-gray-500 font-semibold">Tipo</p>
+                <p className="text-gray-900">{selectedCase.type}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-semibold">Hospital</p>
+                <p className="text-gray-900">{selectedCase.hospital}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-semibold">Estado</p>
+                <span className="text-gray-900 font-medium">{selectedCase.status}</span>
+              </div>
+            </div>
 
-              <div className="p-6 space-y-6">
-                {/* PATIENT INFO */}
-                <div className="grid md:grid-cols-2 gap-4 border-b pb-4">
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Telefone</p>
-                    <p className="text-gray-900">{selectedCase.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Tipo</p>
-                    <p className="text-gray-900">{selectedCase.type}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Hospital</p>
-                    <p className="text-gray-900">{selectedCase.hospital}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 font-semibold">Estado</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getStatusIcon(selectedCase.status)}
-                      <span className="text-gray-900">{selectedCase.status}</span>
-                    </div>
-                  </div>
+            {/* ID Info */}
+            <div className="border p-4 rounded-lg">
+              <h3 className="font-semibold text-gray-900 mb-3">Identificação</h3>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <p className="text-gray-500">Código da Ocorrência</p>
+                  <p className="text-2xl font-mono font-bold text-green-700">{selectedCase.id}</p>
                 </div>
-
-                {/* QR CODE */}
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                    <QrCode size={18} /> Identificador Único
-                  </h3>
-                  <div className="bg-white p-4 rounded border border-blue-300">
-                    <div className="flex gap-4 items-start">
-                      {/* QR Code Visual */}
-                      <div className="shrink-0">
-                        <div className="w-32 h-32 bg-gray-100 p-2 rounded border-2 border-gray-300 flex items-center justify-center">
-                          <div className="text-center text-xs font-mono space-y-0.5">
-                            <div>█ █   ██   █ █</div>
-                            <div>█   █ █  █   </div>
-                            <div>█ █ █████ █ █</div>
-                            <div>  █   █  █   </div>
-                            <div>█ █   ██   █ █</div>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-500 text-center mt-1">QR Code</p>
-                      </div>
-                      
-                      {/* ID Info */}
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-600 mb-2">Código da Ocorrência</p>
-                        <p className="text-4xl font-mono font-bold text-blue-600 mb-4">{selectedCase.id}</p>
-                        
-                        <div className="bg-blue-100 p-3 rounded-lg">
-                          <p className="text-xs text-blue-700 font-medium">Data de Registo</p>
-                          <p className="text-blue-900 font-semibold">{new Date().toLocaleDateString('pt-PT')}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* MANCHESTER SCALE */}
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <h3 className="font-semibold text-purple-900 mb-3">Escala de Manchester</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
-                        <button
-                          key={level}
-                          onClick={() => setEditingManchester(level)}
-                          className={`px-4 py-2 rounded-full font-semibold transition ${editingManchester === level
-                              ? getManchesterColor(level) + " ring-4 ring-offset-2"
-                              : getManchesterBgColor(level)
-                            }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
-                    </div>
-                    {editingManchester && (
-                      <p className="mt-3 text-sm text-gray-700">
-                        ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
-                      </p>
-                    )}
-                  </div>
-
-                  {/* AI CONFIDENCE */}
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <h3 className="font-semibold text-orange-900 mb-3">Confiabilidade AI (0-10)</h3>
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="range"
-                        min="0"
-                        max="10"
-                        value={editingAiConfidence}
-                        onChange={(e) => setEditingAiConfidence(parseInt(e.target.value))}
-                        className="flex-1 h-2 bg-orange-300 rounded-lg appearance-none cursor-pointer"
-                      />
-                      <div className="text-3xl font-bold text-orange-600 min-w-15 text-right">
-                        {editingAiConfidence}/10
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                      Ajuste o nível de confiança da análise de IA
-                    </p>
-                  </div>
-
-                  {/* MEDICAL JUSTIFICATION */}
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <h3 className="font-semibold text-green-900 mb-3">Justificativa do Médico</h3>
-                    <textarea
-                      value={editingJustification}
-                      onChange={(e) => setEditingJustification(e.target.value)}
-                      placeholder="Descreva a razão de qualquer mudança de prioridade ou observações clínicas relevantes..."
-                      className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none"
-                      rows={4}
-                    />
-                    <p className="text-xs text-gray-600 mt-2">
-                      {editingJustification.length} caracteres
-                    </p>
-                  </div>
-
-                  {/* CLINICAL INFO */}
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
-                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-500">Consciência</p>
-                        <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Respiração</p>
-                        <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Hemorragia</p>
-                        <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Sintomas</p>
-                        <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* HOSPITAL PORTFOLIO */}
-                  {selectedCase.portfolioHospital && (
-                    <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                      <h3 className="font-semibold text-indigo-900 mb-3">Especialidades Disponíveis</h3>
-                      <div className="grid md:grid-cols-2 gap-3">
-                        {selectedCase.portfolioHospital.map((specialty, idx) => (
-                          <div key={idx} className="bg-white p-3 rounded-lg border border-indigo-100">
-                            <div className="flex items-center gap-2">
-                              {specialty.available ? (
-                                <CheckCircle2 size={16} className="text-green-600" />
-                              ) : (
-                                <AlertCircle size={16} className="text-gray-400" />
-                              )}
-                              <span className={`text-sm font-medium ${specialty.available ? "text-gray-900" : "text-gray-500 line-through"}`}>
-                                {specialty.name}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* BUTTONS */}
-                  <div className="flex gap-3 pt-4 border-t">
-                    <button
-                      onClick={saveCaseChanges}
-                      className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
-                    >
-                      Guardar Alterações
-                    </button>
-                    <button
-                      onClick={() => setSelectedCase(null)}
-                      className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
+                <div>
+                  <p className="text-gray-500">Data de Registo</p>
+                  <p className="text-gray-900 font-medium">{new Date().toLocaleDateString('pt-PT')}</p>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ================= MODAL DE TRANSFERÊNCIA ================= */}
-        {transferCase && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
-                  {/* HEADER */}
-                  <div className="bg-linear-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-start">
-                    <div>
-                      <h2 className="text-2xl font-bold text-white mb-2">
-                        Transferir Paciente
-                      </h2>
-                      <p className="text-blue-100 text-sm">
-                        {transferCase.name} {transferCase.surname} • ID: {transferCase.id}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setTransferCase(null)}
-                      className="text-white hover:bg-blue-600 p-2 rounded transition"
-                    >
-                      <X size={24} />
-                    </button>
-                  </div>
+            {/* MANCHESTER SCALE */}
+            <div className="border p-4 rounded-lg">
+              <h3 className="font-semibold text-gray-900 mb-3">Urgência (Manchester)</h3>
+              <div className="flex flex-wrap gap-2">
+                {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setEditingManchester(level)}
+                    className={`px-4 py-2 rounded-full font-semibold transition ${editingManchester === level
+                        ? getManchesterColor(level) + " ring-4 ring-offset-2"
+                        : getManchesterBgColor(level)
+                      }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              {editingManchester && (
+                <p className="mt-3 text-sm text-gray-700">
+                  ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+                </p>
+              )}
+            </div>
 
-                  <div className="p-6 space-y-6">
-                    {/* CURRENT INFO */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <h3 className="font-semibold text-blue-900 mb-3">Informação Atual</h3>
-                      <div className="grid md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-blue-700">Hospital Atual</p>
-                          <p className="font-semibold text-gray-900">{transferCase.hospital}</p>
-                        </div>
-                        <div>
-                          <p className="text-blue-700">Estado</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {getStatusIcon(transferCase.status)}
-                            <span className="font-semibold text-gray-900">{transferCase.status}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-blue-700">Urgência</p>
-                          <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(transferCase.manchester)}`}>
-                            {transferCase.manchester}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-blue-700">Tempo de Espera</p>
-                          <p className="font-semibold text-gray-900 mt-1">
-                            {formatWaitTime(getManchesterWaitTime(transferCase.manchester))}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+            {/* MEDICAL JUSTIFICATION */}
+            <div className="border p-4 rounded-lg">
+              <h3 className="font-semibold text-gray-900 mb-3">Observações Clínicas</h3>
+              <textarea
+                value={editingJustification}
+                onChange={(e) => setEditingJustification(e.target.value)}
+                placeholder="Descreva observações ou alterações clínicas relevantes...\n"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none text-sm"
+                rows={3}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                {editingJustification.length} caracteres
+              </p>
+            </div>
 
-                    {/* SELECT TARGET HOSPITAL */}
-                    <div className="space-y-3">
-                      <label className="block font-semibold text-gray-900">
-                        Selecionar Hospital Destino
-                      </label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {hospitals.map((h) => (
-                          <button
-                            key={h}
-                            onClick={() => setTransferTarget(h)}
-                            className={`p-4 text-left rounded-lg border-2 transition ${transferTarget === h
-                                ? "border-blue-600 bg-blue-50"
-                                : "border-gray-200 bg-white hover:border-gray-300"
-                              }`}
-                          >
-                            <p className={`font-semibold ${transferTarget === h ? "text-blue-700" : "text-gray-900"}`}>
-                              {h}
-                            </p>
-                            {transferTarget === h && (
-                              <p className="text-xs text-blue-600 mt-1">✓ Selecionado</p>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+            {/* CLINICAL INFO */}
+            <div className="border-t pt-4">
+              <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Consciência</p>
+                  <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Respiração</p>
+                  <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Hemorragia</p>
+                  <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Sintomas</p>
+                  <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
+                </div>
+              </div>
+            </div>
 
-                    {/* TRANSFER REASON */}
-                    <div className="space-y-3">
-                      <label className="block font-semibold text-gray-900">
-                        Justificativa da Transferência
-                      </label>
-                      <textarea
-                        value={transferReason}
-                        onChange={(e) => setTransferReason(e.target.value)}
-                        placeholder="Descreva o motivo da transferência (ex: melhor especialidade, capacidade, localização)..."
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition resize-none"
-                        rows={4}
-                      />
-                      <p className="text-xs text-gray-600">
-                        {transferReason.length} caracteres
-                      </p>
+            {/* HOSPITAL PORTFOLIO */}
+            {selectedCase.portfolioHospital && (
+              <div className="border p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Especialidades Disponíveis</h3>
+                <div className="grid md:grid-cols-2 gap-2">
+                  {selectedCase.portfolioHospital.map((specialty, idx) => (
+                    <div key={idx} className="bg-gray-50 p-2 rounded text-sm flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        specialty.available ? "bg-green-600" : "bg-gray-300"
+                      }`}></div>
+                      <span className={specialty.available ? "text-gray-900" : "text-gray-400 line-through"}>
+                        {specialty.name}
+                      </span>
                     </div>
-
-                    {/* BUTTONS */}
-                    <div className="flex gap-3 pt-4 border-t">
-                      <button
-                        onClick={executeTransfer}
-                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
-                      >
-                        Confirmar Transferência
-                      </button>
-                      <button
-                        onClick={() => setTransferCase(null)}
-                        className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
-      </Container>
-      
-    </div>
-);
+
+            {/* BUTTONS */}
+            <div className="flex gap-3 pt-4 border-t">
+              <button
+                onClick={saveCaseChanges}
+                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+              >
+                Guardar Alterações
+              </button>
+              <button
+                onClick={() => setSelectedCase(null)}
+                className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ================= MODAL DE TRANSFERÊNCIA ================= */}
+    {transferCase && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+          {/* HEADER */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Transferir Paciente
+              </h2>
+              <p className="text-blue-100 text-sm">
+                {transferCase.name} {transferCase.surname} • ID: {transferCase.id}
+              </p>
+            </div>
+            <button
+              onClick={() => setTransferCase(null)}
+              className="text-white hover:bg-blue-600 p-2 rounded transition"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* CURRENT INFO */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-blue-900 mb-3">Informação Atual</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-blue-700">Hospital Atual</p>
+                  <p className="font-semibold text-gray-900">{transferCase.hospital}</p>
+                </div>
+                <div>
+                  <p className="text-blue-700">Estado</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="font-semibold text-gray-900">{transferCase.status}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-blue-700">Urgência</p>
+                  <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(transferCase.manchester)}`}>
+                    {transferCase.manchester}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-blue-700">Tempo de Espera</p>
+                  <p className="font-semibold text-gray-900 mt-1">
+                    {formatWaitTime(getManchesterWaitTime(transferCase.manchester))}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SELECT TARGET HOSPITAL */}
+            <div className="space-y-3">
+              <label className="block font-semibold text-gray-900">
+                Selecionar Hospital Destino
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {hospitals.map((h) => (
+                  <button
+                    key={h}
+                    onClick={() => setTransferTarget(h)}
+                    className={`p-4 text-left rounded-lg border-2 transition ${transferTarget === h
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                  >
+                    <p className={`font-semibold ${transferTarget === h ? "text-blue-700" : "text-gray-900"}`}>
+                      {h}
+                    </p>
+                    {transferTarget === h && (
+                      <p className="text-xs text-blue-600 mt-1">✓ Selecionado</p>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* TRANSFER REASON */}
+            <div className="space-y-3">
+              <label className="block font-semibold text-gray-900">
+                Justificativa da Transferência
+              </label>
+              <textarea
+                value={transferReason}
+                onChange={(e) => setTransferReason(e.target.value)}
+                placeholder="Descreva o motivo da transferência (ex: melhor especialidade, capacidade, localização)..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition resize-none"
+                rows={4}
+              />
+              <p className="text-xs text-gray-600">
+                {transferReason.length} caracteres
+              </p>
+            </div>
+
+            {/* BUTTONS */}
+            <div className="flex gap-3 pt-4 border-t">
+              <button
+                onClick={executeTransfer}
+                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                Confirmar Transferência
+              </button>
+              <button
+                onClick={() => setTransferCase(null)}
+                className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
+  );
 }

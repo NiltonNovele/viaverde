@@ -1,15 +1,12 @@
 import { Hero } from "./components/Hero";
-import { How } from "./components/How";
-import SearchBar from "./components/SearchBar";
+import AppMargin from "./components/AppMargin";
 import WhatsAppBanner from "./components/WhatsappBanner";
 
 export default function Home() {
   return (
-    <div className="w-full px-4 py-10">
+    <AppMargin>
       <Hero />
-      <SearchBar />
-      {/* <How /> */}
       <WhatsAppBanner />
-    </div>
+    </AppMargin>
   );
 }
