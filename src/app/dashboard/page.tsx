@@ -11,10 +11,17 @@ import {
   LockOpen,
   Filter,
   Plus,
+  X,
+  QrCode,
 } from "lucide-react";
 
 type Status = "Pendente" | "Em Progresso" | "Resolvido";
-type Priority = "Alta" | "Média" | "Baixa";
+type ManchesterLevel = "Vermelho" | "Laranja" | "Amarelo" | "Verde" | "Azul";
+
+type HospitalSpecialty = {
+  name: string;
+  available: boolean;
+};
 
 type Case = {
   id: string;
@@ -28,10 +35,42 @@ type Case = {
   symptoms: string;
   description: string;
   notes: string;
-  priority: Priority;
+  manchester: ManchesterLevel;
   hospital: string;
   status: Status;
   chronic?: boolean;
+  medicalJustification?: string;
+  aiConfidence?: number;
+  portfolioHospital?: HospitalSpecialty[];
+};
+
+const hospitalPortfolio: Record<string, HospitalSpecialty[]> = {
+  "Hospital Central de Maputo": [
+    { name: "Cardiologia", available: true },
+    { name: "Neurologia", available: true },
+    { name: "Urgência/Emergência", available: true },
+    { name: "Cirurgia Geral", available: true },
+    { name: "Pediatria", available: true },
+    { name: "Traumatologia", available: true },
+  ],
+  "Hospital Geral de Mavalane": [
+    { name: "Clínica Geral", available: true },
+    { name: "Pediatria", available: true },
+    { name: "Maternidade", available: true },
+    { name: "Urgência", available: true },
+  ],
+  "Hospital José Macamo": [
+    { name: "Cirurgia Geral", available: true },
+    { name: "Ortopedia", available: true },
+    { name: "Urgência/Emergência", available: true },
+    { name: "Clínica Geral", available: true },
+  ],
+  "Hospital Provincial da Matola": [
+    { name: "Clínica Geral", available: true },
+    { name: "Urgência", available: true },
+    { name: "Pediatria", available: true },
+    { name: "Saúde Mental", available: true },
+  ],
 };
 
 const hospitals = [
@@ -53,7 +92,7 @@ const emptyForm: Case = {
   symptoms: "",
   description: "",
   notes: "",
-  priority: "Média",
+  manchester: "Verde",
   hospital: hospitals[0],
   status: "Pendente",
 };
@@ -74,9 +113,12 @@ const initialCases: Case[] = [
     symptoms: "dor intensa no peito",
     description: "Acidente de viação",
     notes: "Utente está estável",
-    priority: "Alta",
     hospital: hospitals[0],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Dor no peito com estabilidade cardiovascular inicial",
+    aiConfidence: 8,
+    portfolioHospital: hospitalPortfolio[hospitals[0]],
   },
   {
     id: "VV-10002",
@@ -90,9 +132,12 @@ const initialCases: Case[] = [
     symptoms: "febre alta",
     description: "Suspeita de malária",
     notes: "",
-    priority: "Média",
     hospital: hospitals[1],
     status: "Em Progresso",
+    manchester: "Verde",
+    medicalJustification: "Febre alta mas siniais vitais estáveis, suspeita de malária",
+    aiConfidence: 7,
+    portfolioHospital: hospitalPortfolio[hospitals[1]],
   },
   {
     id: "VV-10003",
@@ -106,10 +151,13 @@ const initialCases: Case[] = [
     symptoms: "falta de ar severa",
     description: "Crise asmática",
     notes: "Caso crítico",
-    priority: "Alta",
     hospital: hospitals[0],
     status: "Pendente",
     chronic: true,
+    manchester: "Vermelho",
+    medicalJustification: "Crise asmática severa com dificuldade respiratória grave",
+    aiConfidence: 9,
+    portfolioHospital: hospitalPortfolio[hospitals[0]],
   },
   {
     id: "VV-10004",
@@ -123,10 +171,13 @@ const initialCases: Case[] = [
     symptoms: "hiperglicemia",
     description: "Utente crónico",
     notes: "Diabetes tipo 2",
-    priority: "Média",
     hospital: hospitals[2],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Verde",
+    medicalJustification: "Paciente crónico bem controlado, hiperglicemia moderada",
+    aiConfidence: 6,
+    portfolioHospital: hospitalPortfolio[hospitals[2]],
   },
   {
     id: "VV-10005",
@@ -140,9 +191,12 @@ const initialCases: Case[] = [
     symptoms: "febre leve",
     description: "Gripe",
     notes: "",
-    priority: "Baixa",
     hospital: hospitals[1],
     status: "Resolvido",
+    manchester: "Azul",
+    medicalJustification: "Sintomas leves, não requer internamento",
+    aiConfidence: 8,
+    portfolioHospital: hospitalPortfolio[hospitals[1]],
   },
   {
     id: "VV-10006",
@@ -156,9 +210,12 @@ const initialCases: Case[] = [
     symptoms: "trauma craniano",
     description: "Acidente laboral",
     notes: "Emergência máxima",
-    priority: "Alta",
     hospital: hospitals[0],
     status: "Pendente",
+    manchester: "Vermelho",
+    medicalJustification: "Trauma craniano grave com perda de consciência - EMERGÊNCIA",
+    aiConfidence: 10,
+    portfolioHospital: hospitalPortfolio[hospitals[0]],
   },
   {
     id: "VV-10007",
@@ -172,10 +229,13 @@ const initialCases: Case[] = [
     symptoms: "dor de cabeça",
     description: "Pressão alta",
     notes: "",
-    priority: "Média",
     hospital: hospitals[3],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Amarelo",
+    medicalJustification: "Hipertensão com dor de cabeça, requer monitorização",
+    aiConfidence: 7,
+    portfolioHospital: hospitalPortfolio[hospitals[3]],
   },
   {
     id: "VV-10008",
@@ -189,9 +249,12 @@ const initialCases: Case[] = [
     symptoms: "dor abdominal",
     description: "Apêndice suspeito",
     notes: "",
-    priority: "Alta",
     hospital: hospitals[2],
     status: "Pendente",
+    manchester: "Laranja",
+    medicalJustification: "Dor abdominal aguda - requer cirurgia urgente",
+    aiConfidence: 8,
+    portfolioHospital: hospitalPortfolio[hospitals[2]],
   },
   {
     id: "VV-10009",
@@ -205,9 +268,12 @@ const initialCases: Case[] = [
     symptoms: "febre alta persistente",
     description: "Possível malária",
     notes: "",
-    priority: "Média",
     hospital: hospitals[1],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Febre alta com risco de malária em zona endémica",
+    aiConfidence: 7,
+    portfolioHospital: hospitalPortfolio[hospitals[1]],
   },
   {
     id: "VV-10010",
@@ -221,9 +287,12 @@ const initialCases: Case[] = [
     symptoms: "queda",
     description: "Trauma leve",
     notes: "",
-    priority: "Baixa",
     hospital: hospitals[3],
     status: "Resolvido",
+    manchester: "Azul",
+    medicalJustification: "Trauma leve sem complicações observadas",
+    aiConfidence: 6,
+    portfolioHospital: hospitalPortfolio[hospitals[3]],
   },
   {
     id: "VV-10011",
@@ -237,10 +306,13 @@ const initialCases: Case[] = [
     symptoms: "asma crónica",
     description: "Crónico",
     notes: "",
-    priority: "Alta",
     hospital: hospitals[0],
     status: "Em Progresso",
     chronic: true,
+    manchester: "Laranja",
+    medicalJustification: "Crise asmática em paciente crónico, requer hospitalização",
+    aiConfidence: 9,
+    portfolioHospital: hospitalPortfolio[hospitals[0]],
   },
   {
     id: "VV-10012",
@@ -254,9 +326,12 @@ const initialCases: Case[] = [
     symptoms: "dor no peito leve",
     description: "Avaliação necessária",
     notes: "",
-    priority: "Média",
     hospital: hospitals[2],
     status: "Pendente",
+    manchester: "Amarelo",
+    medicalJustification: "Dor no peito - requer EKG para descartar infarto",
+    aiConfidence: 7,
+    portfolioHospital: hospitalPortfolio[hospitals[2]],
   },
   {
     id: "VV-10013",
@@ -270,22 +345,104 @@ const initialCases: Case[] = [
     symptoms: "controlo diabetes",
     description: "Consulta de rotina",
     notes: "",
-    priority: "Baixa",
     hospital: hospitals[1],
     status: "Resolvido",
     chronic: true,
+    manchester: "Azul",
+    medicalJustification: "Consulta de rotina para controlo de diabetes",
+    aiConfidence: 5,
+    portfolioHospital: hospitalPortfolio[hospitals[1]],
   },
 ];
 
-/* ---------------- HELPERS (unchanged) ---------------- */
-const getPriorityColor = (priority: Priority) => {
-  switch (priority) {
-    case "Alta":
+/* ============ HELPERS ============ */
+const getManchesterWaitTime = (level: ManchesterLevel): number => {
+  switch (level) {
+    case "Vermelho":
+      return 0; // Imediato
+    case "Laranja":
+      return 10;
+    case "Amarelo":
+      return 60;
+    case "Verde":
+      return 120;
+    case "Azul":
+      return 240;
+    default:
+      return 120;
+  }
+};
+
+const formatWaitTime = (minutes: number): string => {
+  if (minutes === 0) return "Imediato";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.ceil(minutes / 60);
+  return `${hours}H`;
+};
+
+const getManchesterPriority = (level: ManchesterLevel): string => {
+  switch (level) {
+    case "Vermelho":
+      return "Emergência";
+    case "Laranja":
+      return "Muito Urgente";
+    case "Amarelo":
+      return "Urgente";
+    case "Verde":
+      return "Pouco Urgente";
+    case "Azul":
+      return "Não Urgente";
+    default:
+      return "Urgente";
+  }
+};
+
+const getPriorityColor = (manchester: ManchesterLevel) => {
+  switch (manchester) {
+    case "Vermelho":
       return "bg-red-100 text-red-700 border-red-300";
-    case "Média":
+    case "Laranja":
+      return "bg-orange-100 text-orange-700 border-orange-300";
+    case "Amarelo":
       return "bg-yellow-100 text-yellow-700 border-yellow-300";
-    case "Baixa":
+    case "Verde":
       return "bg-green-100 text-green-700 border-green-300";
+    case "Azul":
+      return "bg-blue-100 text-blue-700 border-blue-300";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const getManchesterColor = (level?: ManchesterLevel) => {
+  switch (level) {
+    case "Vermelho":
+      return "bg-red-600 text-white";
+    case "Laranja":
+      return "bg-orange-500 text-white";
+    case "Amarelo":
+      return "bg-yellow-400 text-gray-900";
+    case "Verde":
+      return "bg-green-500 text-white";
+    case "Azul":
+      return "bg-blue-500 text-white";
+    default:
+      return "bg-gray-300 text-gray-700";
+  }
+};
+
+const getManchesterBgColor = (level?: ManchesterLevel) => {
+  switch (level) {
+    case "Vermelho":
+      return "bg-red-100 text-red-700 border-red-300";
+    case "Laranja":
+      return "bg-orange-100 text-orange-700 border-orange-300";
+    case "Amarelo":
+      return "bg-yellow-100 text-yellow-700 border-yellow-300";
+    case "Verde":
+      return "bg-green-100 text-green-700 border-green-300";
+    case "Azul":
+      return "bg-blue-100 text-blue-700 border-blue-300";
     default:
       return "bg-gray-100 text-gray-700";
   }
@@ -311,12 +468,21 @@ export default function DashboardPage() {
 
   const [cases, setCases] = useState<Case[]>(initialCases);
   const [selectedHospital, setSelectedHospital] = useState(hospitals[0]);
-  const [filterByPriority, setFilterByPriority] =
-    useState<Priority | "Todos">("Todos");
+  const [filterByManchester, setFilterByManchester] =
+    useState<ManchesterLevel | "Todos">("Todos");
   const [lock, setLock] = useState(true);
 
   // ✅ NEW STATE
   const [form, setForm] = useState<Case>(emptyForm);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [editingManchester, setEditingManchester] = useState<ManchesterLevel | undefined>();
+  const [editingJustification, setEditingJustification] = useState("");
+  const [editingAiConfidence, setEditingAiConfidence] = useState(0);
+  
+  // Transfer Modal State
+  const [transferCase, setTransferCase] = useState<Case | null>(null);
+  const [transferTarget, setTransferTarget] = useState(hospitals[0]);
+  const [transferReason, setTransferReason] = useState("");
 
   // ✅ NEW FUNCTION
   const handleRegisterCall = () => {
@@ -329,10 +495,69 @@ export default function DashboardPage() {
       ...form,
       id: "VV-" + Math.floor(Math.random() * 90000),
       status: "Pendente",
+      manchester: form.manchester,
+      medicalJustification: "",
+      aiConfidence: 5,
+      portfolioHospital: hospitalPortfolio[form.hospital],
     };
 
     setCases((prev) => [newCase, ...prev]);
     setForm(emptyForm);
+  };
+
+  const openCaseDetail = (c: Case) => {
+    setSelectedCase(c);
+    setEditingManchester(c.manchester);
+    setEditingJustification(c.medicalJustification || "");
+    setEditingAiConfidence(c.aiConfidence || 5);
+  };
+
+  const saveCaseChanges = () => {
+    if (!selectedCase || !editingManchester) return;
+
+    setCases((prev) =>
+      prev.map((c) =>
+        c.id === selectedCase.id
+          ? {
+            ...c,
+            manchester: editingManchester,
+            medicalJustification: editingJustification,
+            aiConfidence: editingAiConfidence,
+          }
+          : c
+      )
+    );
+
+    // Mostrar feedback e fechar modal
+    alert("✓ Alterações guardadas com sucesso!");
+    setSelectedCase(null);
+  };
+
+  const openTransferModal = (c: Case) => {
+    setTransferCase(c);
+    setTransferTarget(c.hospital !== hospitals[0] ? hospitals[0] : hospitals[1]);
+    setTransferReason("");
+  };
+
+  const executeTransfer = () => {
+    if (!transferCase) return;
+    if (!transferReason.trim()) {
+      alert("Por favor, indique a justificativa da transferência.");
+      return;
+    }
+
+    setCases((prev) =>
+      prev.map((c) =>
+        c.id === transferCase.id
+          ? { ...c, hospital: transferTarget, status: "Em Progresso" }
+          : c
+      )
+    );
+
+    alert(
+      `✓ Paciente ${transferCase.name} transferido para ${transferTarget}\nMotivo: ${transferReason}`
+    );
+    setTransferCase(null);
   };
 
   const handleLogin = () => {
@@ -348,9 +573,9 @@ export default function DashboardPage() {
     : cases;
 
   const filteredCases =
-    filterByPriority === "Todos"
+    filterByManchester === "Todos"
       ? visibleCases
-      : visibleCases.filter((c) => c.priority === filterByPriority);
+      : visibleCases.filter((c) => c.manchester === filterByManchester);
 
   const updateStatus = (id: string, status: Status) => {
     setCases((prev) =>
@@ -470,17 +695,19 @@ export default function DashboardPage() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Filter size={16} className="inline mr-2" /> Prioridade
+              <Filter size={16} className="inline mr-2" /> Urgência (Manchester)
             </label>
             <select
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition"
-              value={filterByPriority}
-              onChange={(e) => setFilterByPriority(e.target.value as Priority | "Todos")}
+              value={filterByManchester}
+              onChange={(e) => setFilterByManchester(e.target.value as ManchesterLevel | "Todos")}
             >
-              <option value="Todos">Todas as Prioridades</option>
-              <option value="Alta">🔴 Alta</option>
-              <option value="Média">🟡 Média</option>
-              <option value="Baixa">🟢 Baixa</option>
+              <option value="Todos">Todas as Urgências</option>
+              <option value="Vermelho">🔴 Vermelho (Emergência - Imediato)</option>
+              <option value="Laranja">🟠 Laranja (Muito Urgente - 10 min)</option>
+              <option value="Amarelo">🟡 Amarelo (Urgente - 1H)</option>
+              <option value="Verde">🟢 Verde (Pouco Urgente - 2H)</option>
+              <option value="Azul">🔵 Azul (Não Urgente - 4H)</option>
             </select>
           </div>
         </div>
@@ -492,10 +719,10 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-gray-900 mt-2">{filteredCases.length}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
-            <p className="text-gray-600 text-sm font-medium">Prioridade Alta</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-600">
+            <p className="text-gray-600 text-sm font-medium">🔴 Emergências</p>
             <p className="text-3xl font-bold text-red-600 mt-2">
-              {filteredCases.filter((c) => c.priority === "Alta").length}
+              {filteredCases.filter((c) => c.manchester === "Vermelho").length}
             </p>
           </div>
 
@@ -524,7 +751,8 @@ export default function DashboardPage() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Utente</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Sintomas</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Prioridade</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Urgência (Manchester)</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tempo Espera</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Estado</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Ações</th>
                 </tr>
@@ -545,9 +773,15 @@ export default function DashboardPage() {
                     <td className="px-6 py-4 text-sm text-gray-700">{c.type}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{c.symptoms}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(c.priority)}`}>
-                        {c.priority}
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(c.manchester)}`}>
+                        {c.manchester}
                       </span>
+                      <p className="text-xs text-gray-500 mt-1">{getManchesterPriority(c.manchester)}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {formatWaitTime(getManchesterWaitTime(c.manchester))}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -557,6 +791,12 @@ export default function DashboardPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => openCaseDetail(c)}
+                          className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded text-xs hover:bg-purple-100 transition font-medium"
+                        >
+                          Detalhes
+                        </button>
                         {c.status !== "Resolvido" && (
                           <button
                             onClick={() => updateStatus(c.id, "Resolvido")}
@@ -566,8 +806,8 @@ export default function DashboardPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => deleteCase(c.id)}
-                          className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-red-100 transition font-medium"
+                          onClick={() => openTransferModal(c)}
+                          className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs hover:bg-blue-100 transition font-medium"
                         >
                           Transferir
                         </button>
@@ -590,13 +830,13 @@ export default function DashboardPage() {
         </div>
 
         <br></br>
-<br></br>
-<br></br>
-<br></br>
+        <br></br>
+        <br></br>
+        <br></br>
 
 
 
-         {/* ================= NEW SECTION ================= */}
+        {/* ================= NEW SECTION ================= */}
         <div className="bg-white p-6 rounded-lg shadow mb-8 border-l-4 border-green-600">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Plus size={18} /> Registo de Chamadas
@@ -648,12 +888,14 @@ export default function DashboardPage() {
             />
 
             <select className="border p-2 rounded"
-              value={form.priority}
-              onChange={(e) => setForm({ ...form, priority: e.target.value as Priority })}
+              value={form.manchester}
+              onChange={(e) => setForm({ ...form, manchester: e.target.value as ManchesterLevel })}
             >
-              <option>Alta</option>
-              <option>Média</option>
-              <option>Baixa</option>
+              <option value="Vermelho">🔴 Vermelho (Emergência)</option>
+              <option value="Laranja">🟠 Laranja (Muito Urgente)</option>
+              <option value="Amarelo">🟡 Amarelo (Urgente)</option>
+              <option value="Verde">🟢 Verde (Pouco Urgente)</option>
+              <option value="Azul">🔵 Azul (Não Urgente)</option>
             </select>
 
             <select className="border p-2 rounded"
@@ -672,9 +914,330 @@ export default function DashboardPage() {
           >
             Registar Ocorrência
           </button>
-        </div> 
+        </div>
+
+        {/* ================= MODAL DE DETALHES ================= */}
+        {selectedCase && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
+              {/* HEADER */}
+              <div className="bg-linear-to-r from-green-600 to-green-700 p-6 flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {selectedCase.name} {selectedCase.surname}
+                  </h2>
+                  <p className="text-green-100 text-sm">ID: {selectedCase.id}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedCase(null)}
+                  className="text-white hover:bg-green-600 p-2 rounded transition"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* PATIENT INFO */}
+                <div className="grid md:grid-cols-2 gap-4 border-b pb-4">
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Telefone</p>
+                    <p className="text-gray-900">{selectedCase.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Tipo</p>
+                    <p className="text-gray-900">{selectedCase.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Hospital</p>
+                    <p className="text-gray-900">{selectedCase.hospital}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-semibold">Estado</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {getStatusIcon(selectedCase.status)}
+                      <span className="text-gray-900">{selectedCase.status}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* QR CODE */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <QrCode size={18} /> Identificador Único
+                  </h3>
+                  <div className="bg-white p-4 rounded border border-blue-300">
+                    <div className="flex gap-4 items-start">
+                      {/* QR Code Visual */}
+                      <div className="shrink-0">
+                        <div className="w-32 h-32 bg-gray-100 p-2 rounded border-2 border-gray-300 flex items-center justify-center">
+                          <div className="text-center text-xs font-mono space-y-0.5">
+                            <div>█ █   ██   █ █</div>
+                            <div>█   █ █  █   </div>
+                            <div>█ █ █████ █ █</div>
+                            <div>  █   █  █   </div>
+                            <div>█ █   ██   █ █</div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 text-center mt-1">QR Code</p>
+                      </div>
+                      
+                      {/* ID Info */}
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-600 mb-2">Código da Ocorrência</p>
+                        <p className="text-4xl font-mono font-bold text-blue-600 mb-4">{selectedCase.id}</p>
+                        
+                        <div className="bg-blue-100 p-3 rounded-lg">
+                          <p className="text-xs text-blue-700 font-medium">Data de Registo</p>
+                          <p className="text-blue-900 font-semibold">{new Date().toLocaleDateString('pt-PT')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* MANCHESTER SCALE */}
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <h3 className="font-semibold text-purple-900 mb-3">Escala de Manchester</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {(["Vermelho", "Laranja", "Amarelo", "Verde", "Azul"] as ManchesterLevel[]).map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setEditingManchester(level)}
+                          className={`px-4 py-2 rounded-full font-semibold transition ${editingManchester === level
+                              ? getManchesterColor(level) + " ring-4 ring-offset-2"
+                              : getManchesterBgColor(level)
+                            }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                    {editingManchester && (
+                      <p className="mt-3 text-sm text-gray-700">
+                        ✓ Selecionado: <span className="font-semibold">{editingManchester}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* AI CONFIDENCE */}
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <h3 className="font-semibold text-orange-900 mb-3">Confiabilidade AI (0-10)</h3>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={editingAiConfidence}
+                        onChange={(e) => setEditingAiConfidence(parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-orange-300 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <div className="text-3xl font-bold text-orange-600 min-w-15 text-right">
+                        {editingAiConfidence}/10
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Ajuste o nível de confiança da análise de IA
+                    </p>
+                  </div>
+
+                  {/* MEDICAL JUSTIFICATION */}
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-green-900 mb-3">Justificativa do Médico</h3>
+                    <textarea
+                      value={editingJustification}
+                      onChange={(e) => setEditingJustification(e.target.value)}
+                      placeholder="Descreva a razão de qualquer mudança de prioridade ou observações clínicas relevantes..."
+                      className="w-full px-3 py-2 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition resize-none"
+                      rows={4}
+                    />
+                    <p className="text-xs text-gray-600 mt-2">
+                      {editingJustification.length} caracteres
+                    </p>
+                  </div>
+
+                  {/* CLINICAL INFO */}
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Informações Clínicas</h3>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500">Consciência</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.consciousness}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Respiração</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.breathing}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Hemorragia</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.bleeding}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Sintomas</p>
+                        <p className="text-gray-900 font-semibold">{selectedCase.symptoms}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* HOSPITAL PORTFOLIO */}
+                  {selectedCase.portfolioHospital && (
+                    <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                      <h3 className="font-semibold text-indigo-900 mb-3">Especialidades Disponíveis</h3>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {selectedCase.portfolioHospital.map((specialty, idx) => (
+                          <div key={idx} className="bg-white p-3 rounded-lg border border-indigo-100">
+                            <div className="flex items-center gap-2">
+                              {specialty.available ? (
+                                <CheckCircle2 size={16} className="text-green-600" />
+                              ) : (
+                                <AlertCircle size={16} className="text-gray-400" />
+                              )}
+                              <span className={`text-sm font-medium ${specialty.available ? "text-gray-900" : "text-gray-500 line-through"}`}>
+                                {specialty.name}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* BUTTONS */}
+                  <div className="flex gap-3 pt-4 border-t">
+                    <button
+                      onClick={saveCaseChanges}
+                      className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                    >
+                      Guardar Alterações
+                    </button>
+                    <button
+                      onClick={() => setSelectedCase(null)}
+                      className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= MODAL DE TRANSFERÊNCIA ================= */}
+        {transferCase && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+                  {/* HEADER */}
+                  <div className="bg-linear-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-start">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        Transferir Paciente
+                      </h2>
+                      <p className="text-blue-100 text-sm">
+                        {transferCase.name} {transferCase.surname} • ID: {transferCase.id}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setTransferCase(null)}
+                      className="text-white hover:bg-blue-600 p-2 rounded transition"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+
+                  <div className="p-6 space-y-6">
+                    {/* CURRENT INFO */}
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <h3 className="font-semibold text-blue-900 mb-3">Informação Atual</h3>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-blue-700">Hospital Atual</p>
+                          <p className="font-semibold text-gray-900">{transferCase.hospital}</p>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">Estado</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {getStatusIcon(transferCase.status)}
+                            <span className="font-semibold text-gray-900">{transferCase.status}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">Urgência</p>
+                          <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(transferCase.manchester)}`}>
+                            {transferCase.manchester}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">Tempo de Espera</p>
+                          <p className="font-semibold text-gray-900 mt-1">
+                            {formatWaitTime(getManchesterWaitTime(transferCase.manchester))}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SELECT TARGET HOSPITAL */}
+                    <div className="space-y-3">
+                      <label className="block font-semibold text-gray-900">
+                        Selecionar Hospital Destino
+                      </label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {hospitals.map((h) => (
+                          <button
+                            key={h}
+                            onClick={() => setTransferTarget(h)}
+                            className={`p-4 text-left rounded-lg border-2 transition ${transferTarget === h
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-gray-200 bg-white hover:border-gray-300"
+                              }`}
+                          >
+                            <p className={`font-semibold ${transferTarget === h ? "text-blue-700" : "text-gray-900"}`}>
+                              {h}
+                            </p>
+                            {transferTarget === h && (
+                              <p className="text-xs text-blue-600 mt-1">✓ Selecionado</p>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* TRANSFER REASON */}
+                    <div className="space-y-3">
+                      <label className="block font-semibold text-gray-900">
+                        Justificativa da Transferência
+                      </label>
+                      <textarea
+                        value={transferReason}
+                        onChange={(e) => setTransferReason(e.target.value)}
+                        placeholder="Descreva o motivo da transferência (ex: melhor especialidade, capacidade, localização)..."
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition resize-none"
+                        rows={4}
+                      />
+                      <p className="text-xs text-gray-600">
+                        {transferReason.length} caracteres
+                      </p>
+                    </div>
+
+                    {/* BUTTONS */}
+                    <div className="flex gap-3 pt-4 border-t">
+                      <button
+                        onClick={executeTransfer}
+                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+                      >
+                        Confirmar Transferência
+                      </button>
+                      <button
+                        onClick={() => setTransferCase(null)}
+                        className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
       </Container>
       
     </div>
-  );
+);
 }
