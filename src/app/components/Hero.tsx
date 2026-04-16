@@ -46,7 +46,7 @@ export const Hero = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-6">
                 <ShieldCheck size={16} />
-                <span>Sistema Nacional de Saúde</span>
+                <span>Plataforma Digital</span>
               </div>
               
               <h1 className="text-3xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
