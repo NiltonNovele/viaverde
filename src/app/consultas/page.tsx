@@ -784,36 +784,36 @@ export default function ConsultasPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {/* Header */}
-        <div className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 sm:mb-6 rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-green-600">
             ViaVerde Consultas
           </p>
-          <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
             Encontre a melhor unidade para a sua consulta
           </h1>
-          <p className="mt-2 max-w-3xl text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500">
             Escolha a especialidade ou descreva os seus sintomas para ver a unidade
             recomendada, tempo de espera, disponibilidade médica e marcar a consulta.
           </p>
         </div>
 
-        <div className={`grid gap-6 ${hasSubmitted ? "lg:grid-cols-[1fr_360px]" : ""}`}>
+        <div className={`grid gap-4 sm:gap-6 ${hasSubmitted ? "lg:grid-cols-[1fr_360px]" : ""}`}>
           {hasSubmitted && (
-            <div className="order-2 space-y-5 lg:order-1">
+            <div className="order-2 space-y-4 sm:space-y-5 lg:order-1">
               {/* Mapa */}
               <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 p-4">
+                <div className="border-b border-slate-100 p-3 sm:p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900">Mapa de Maputo</h2>
-                      <p className="text-sm text-slate-500">
+                      <h2 className="text-base sm:text-lg font-bold text-slate-900">Mapa de Maputo</h2>
+                      <p className="text-xs sm:text-sm text-slate-500">
                         Toque no mapa para mover a sua localização ou selecione uma unidade.
                       </p>
                     </div>
-                    <div className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
-                      <Navigation size={16} className="text-green-600" />
+                    <div className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-600">
+                      <Navigation size={14} className="text-green-600" />
                       Posição atual
                     </div>
                   </div>
@@ -968,14 +968,14 @@ export default function ConsultasPage() {
 
               {/* Recomendação Principal */}
               {recommendedHospital && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-5 shadow-sm">
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4 sm:p-5 shadow-sm">
                   <div className="mb-3 flex items-center gap-2">
                     <CheckCircle2 size={18} className="text-green-600" />
-                    <h3 className="text-lg font-bold text-slate-900">Melhor recomendação</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">Melhor recomendação</h3>
                   </div>
 
-                  <div className="rounded-lg bg-white p-4">
-                    <div className="flex items-start justify-between gap-3">
+                  <div className="rounded-lg bg-white p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div>
                         <p className="text-base font-bold text-slate-900">
                           {recommendedHospital.hospital.name}
@@ -985,7 +985,7 @@ export default function ConsultasPage() {
                         </p>
                       </div>
                       <span
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[recommendedHospital.hospital.status]}`}
+                        className={`self-start rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[recommendedHospital.hospital.status]}`}
                       >
                         {recommendedHospital.hospital.status}
                       </span>
@@ -995,7 +995,7 @@ export default function ConsultasPage() {
                       {recommendedHospital.hospital.images.map((image, index) => (
                         <div
                           key={image}
-                          className="h-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+                          className="h-16 sm:h-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                         >
                           <img
                             src={image}
@@ -1045,10 +1045,10 @@ export default function ConsultasPage() {
               )}
 
               {/* Lista de Hospitais */}
-              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <div className="mb-4 flex items-center gap-2">
                   <Building2 size={18} className="text-blue-600" />
-                  <h3 className="text-lg font-bold text-slate-900">Hospitais compatíveis</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">Hospitais compatíveis</h3>
                 </div>
 
                 <div className="space-y-3">
@@ -1063,7 +1063,7 @@ export default function ConsultasPage() {
                       key={item.hospital.id}
                       type="button"
                       onClick={() => setSelectedHospitalId(item.hospital.id)}
-                      className={`w-full rounded-lg border p-4 text-left transition ${
+                      className={`w-full rounded-lg border p-3 sm:p-4 text-left transition ${
                         selectedHospitalId === item.hospital.id
                           ? "border-green-500 bg-green-50"
                           : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -1071,7 +1071,7 @@ export default function ConsultasPage() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             {index === 0 && (
                               <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
                                 Recomendado
@@ -1083,14 +1083,14 @@ export default function ConsultasPage() {
                             {item.hospital.zone}
                           </p>
                         </div>
-                        <ChevronRight size={18} className="text-slate-400" />
+                        <ChevronRight size={18} className="text-slate-400 shrink-0" />
                       </div>
 
                       <div className="mt-3 grid grid-cols-3 gap-2">
                         {item.hospital.images.map((image, imageIndex) => (
                           <div
                             key={image}
-                            className="h-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+                            className="h-14 sm:h-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                           >
                             <img
                               src={image}
@@ -1122,13 +1122,13 @@ export default function ConsultasPage() {
           )}
 
           {/* Sidebar */}
-          <aside className={`space-y-5 ${hasSubmitted ? "order-1 lg:order-2" : ""}`}>
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <aside className={`space-y-4 sm:space-y-5 ${hasSubmitted ? "order-1 lg:order-2" : ""}`}>
+            <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
               {!hasSubmitted ? (
                 <>
                   <div className="mb-4 flex items-center gap-2">
                     <Sparkles size={18} className="text-green-600" />
-                    <h3 className="text-lg font-bold text-slate-900">Painel de consulta</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">Painel de consulta</h3>
                   </div>
 
                   <div className="space-y-4">
@@ -1175,7 +1175,7 @@ export default function ConsultasPage() {
                         <button
                           type="button"
                           onClick={() => setHospitalFilter("public")}
-                          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
+                          className={`flex-1 rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition ${
                             hospitalFilter === "public"
                               ? "bg-green-600 text-white shadow-sm"
                               : "text-slate-600 hover:bg-slate-200"
@@ -1186,7 +1186,7 @@ export default function ConsultasPage() {
                         <button
                           type="button"
                           onClick={() => setHospitalFilter("all")}
-                          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
+                          className={`flex-1 rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition ${
                             hospitalFilter === "all"
                               ? "bg-blue-600 text-white shadow-sm"
                               : "text-slate-600 hover:bg-slate-200"
@@ -1197,7 +1197,7 @@ export default function ConsultasPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
                       <label className="mb-2 block text-sm font-medium text-slate-700">
                         Sintomas
                       </label>
@@ -1215,7 +1215,7 @@ export default function ConsultasPage() {
                             key={item}
                             type="button"
                             onClick={() => setSymptoms(item)}
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-green-300 hover:text-green-700"
+                            className="rounded-full border border-slate-200 bg-white px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-green-300 hover:text-green-700"
                           >
                             {item}
                           </button>
@@ -1234,7 +1234,7 @@ export default function ConsultasPage() {
                   </div>
                 </>
               ) : (
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
                       Consulta preparada
@@ -1256,7 +1256,7 @@ export default function ConsultasPage() {
             </div>
 
             {hasSubmitted && analysisLoading && (
-              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                   <Activity size={16} className="animate-pulse text-green-600" />
                   A processar consulta
@@ -1270,8 +1270,8 @@ export default function ConsultasPage() {
 
             {hasSubmitted && analysisRecommendation && !analysisLoading && selectedHospital && (
               <>
-                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div>
                       <div className="mb-1 flex items-center gap-2">
                         <MapPin size={16} className="text-green-600" />
@@ -1279,14 +1279,14 @@ export default function ConsultasPage() {
                           Unidade selecionada
                         </p>
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900">
                         {selectedHospital.name}
                       </h3>
                       <p className="text-sm text-slate-500">{selectedHospital.zone}</p>
                     </div>
 
                     <span
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[selectedHospital.status]}`}
+                      className={`self-start rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[selectedHospital.status]}`}
                     >
                       {selectedHospital.status}
                     </span>
@@ -1359,83 +1359,83 @@ export default function ConsultasPage() {
                 </div>
 
                 {bookingConfirmed && selectedDoctor && (
-                  <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="rounded-lg border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                     <div className="mb-4 flex items-center gap-2">
                       <ReceiptText size={18} className="text-green-600" />
-                      <h3 className="text-lg font-bold text-slate-900">Comprovativo digital</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900">Comprovativo digital</h3>
                     </div>
 
-                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                         <div>
                           <p className="text-sm text-slate-500">Código</p>
                           <p className="font-bold text-slate-900">{receiptId}</p>
                         </div>
                         <span
-                          className={`rounded-full border px-3 py-1 text-xs font-semibold ${urgencyStyles[urgencyStatus]}`}
+                          className={`self-start rounded-full border px-3 py-1 text-xs font-semibold ${urgencyStyles[urgencyStatus]}`}
                         >
                           {urgencyStatus}
                         </span>
                       </div>
 
                       <div className="mt-4 space-y-3 text-sm">
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Paciente</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {bookingForm.fullName}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Telefone</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {bookingForm.phone}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Data</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {formatTodayDate()}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Especialidade</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {selectedSpecialty}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Unidade</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {selectedHospital.name}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Médico</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {selectedDoctor.name}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Próximo horário</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {selectedDoctor.nextSlot}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Tempo de espera</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {selectedHospital.estimatedWait} min
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 border-b border-slate-200 pb-2">
                           <span className="text-slate-500">Urgência</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {urgencyStatus}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                           <span className="text-slate-500">SMS</span>
-                          <span className="text-right font-medium text-slate-900">
+                          <span className="font-medium text-slate-900 text-right">
                             {bookingForm.receiveSms ? "Solicitado" : "Não solicitado"}
                           </span>
                         </div>
@@ -1459,12 +1459,12 @@ export default function ConsultasPage() {
       {showBookingModal && selectedHospital && selectedDoctor && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-3 sm:items-center sm:p-6">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl">
-            <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
+            <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 bg-white px-4 sm:px-5 py-3 sm:py-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
                   Confirmar consulta
                 </p>
-                <h3 className="text-lg font-bold text-slate-900">Revisão dos dados</h3>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">Revisão dos dados</h3>
               </div>
 
               <button
@@ -1476,42 +1476,42 @@ export default function ConsultasPage() {
               </button>
             </div>
 
-            <div className="space-y-5 p-5">
-              <div className="rounded-lg bg-slate-50 p-4">
+            <div className="space-y-4 sm:space-y-5 p-4 sm:p-5">
+              <div className="rounded-lg bg-slate-50 p-3 sm:p-4">
                 <div className="grid gap-3 text-sm">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Especialidade</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {selectedSpecialty}
                     </span>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Unidade</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {selectedHospital.name}
                     </span>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Médico</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {selectedDoctor.name}
                     </span>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Próximo horário</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {selectedDoctor.nextSlot}
                     </span>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Tempo de espera</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {selectedHospital.estimatedWait} min
                     </span>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <span className="text-slate-500">Urgência</span>
-                    <span className="text-right font-medium text-slate-900">
+                    <span className="font-medium text-slate-900 text-right">
                       {urgencyStatus}
                     </span>
                   </div>
@@ -1546,7 +1546,7 @@ export default function ConsultasPage() {
                 />
               </div>
 
-              <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
                 <input
                   type="checkbox"
                   checked={bookingForm.receiveSms}
@@ -1556,7 +1556,7 @@ export default function ConsultasPage() {
                       receiveSms: e.target.checked,
                     }))
                   }
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-green-600"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-green-600 shrink-0"
                 />
                 <div>
                   <p className="text-sm font-medium text-slate-900">
@@ -1568,7 +1568,7 @@ export default function ConsultasPage() {
                 </div>
               </label>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => setShowBookingModal(false)}
